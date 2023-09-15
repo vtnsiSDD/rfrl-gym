@@ -1,0 +1,80 @@
+{
+    "environment": 
+    {
+	    "num_channels": 10,
+	    "max_steps": 100,
+	    "observation_mode": "detect",
+	    "reward_mode": "dsa",
+        "target_entity": "constant_freq_1"
+    },
+    "entities": 
+    {
+        "fixed_freq_1": 
+        {
+            "type": "ConstantFreq",
+            "channels": [0],
+            "onoff": [1,18,2]
+        },
+        "fixed_freq_2": 
+        {
+            "type": "ConstantFreq",
+            "channels": [1],
+            "onoff": [0,4,16]
+        },
+        "fixed_freq_3": 
+        {
+            "type": "ConstantFreq",
+            "channels": [2],
+            "onoff": [1,14,6]
+        },
+        "fixed_freq_4": 
+        {
+            "type": "ConstantFreq",
+            "channels": [3],
+            "onoff": [0,8,12]
+        },
+        "fixed_freq_5": 
+        {
+            "type": "ConstantFreq",
+            "channels": [4],
+            "onoff": [1,2,18]
+        },
+        "fixed_freq_6": 
+        {
+            "type": "ConstantFreq",
+            "channels": [5],
+            "onoff": [0,16,4]
+        },
+        "fixed_freq_7": 
+        {
+            "type": "ConstantFreq",
+            "channels": [6],
+            "onoff": [1,10,10]
+        },
+        "fixed_freq_8": 
+        {
+            "type": "ConstantFreq",
+            "channels": [7],
+            "onoff": [0,12,8]
+        },
+        "fixed_freq_9": 
+        {
+            "type": "ConstantFreq",
+            "channels": [8],
+            "onoff": [1,6,14]
+        },
+        "fixed_freq_10": 
+        {
+            "type": "ConstantFreq",
+            "channels": [9],
+            "onoff": [1,1,0]
+        }
+    },
+    "render":
+    {
+        "render_mode": "pyqt",
+        "render_fps": 10,
+        "render_history": 30,
+        "render_background": "black"
+    }
+}

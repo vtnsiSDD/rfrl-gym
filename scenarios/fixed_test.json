@@ -1,0 +1,51 @@
+{
+    "environment": 
+    {
+	    "num_channels": 10,
+	    "max_steps": 100,
+	    "observation_mode": "classify",
+	    "reward_mode": "dsa",
+        "target_entity": "constant_freq_1"
+    },
+    "entities": 
+    {
+        "fixed_freq_1": 
+        {
+            "type": "ConstantFreq",
+            "channels": [0],
+            "onoff": [1,1,0]
+        },
+        "fixed_freq_2": 
+        {
+            "type": "ConstantFreq",
+            "channels": [2],
+            "onoff": [1,1,0]
+        },
+        "fixed_freq_3": 
+        {
+            "type": "ConstantFreq",
+            "channels": [4],
+            "onoff": [1,1,0]
+        },
+        "fixed_freq_4": 
+        {
+            "type": "ConstantFreq",
+            "channels": [6],
+            "onoff": [1,1,0]
+        }
+        ,
+        "fixed_freq_5": 
+        {
+            "type": "ConstantFreq",
+            "channels": [8],
+            "onoff": [1,1,0]
+        }
+    },
+    "render":
+    {
+        "render_mode": "terminal",
+        "render_fps": 100,
+        "render_history": 30,
+        "render_background": "black"
+    }
+}

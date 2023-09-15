@@ -1,0 +1,106 @@
+{
+    "environment": 
+    {
+	    "num_channels": 10,
+	    "max_steps": 100,
+	    "observation_mode": "classify",
+	    "reward_mode": "dsa",
+        "target_entity": "constant_freq_1"
+    },
+    "entities": 
+    { 
+        "constant_freq_1":
+        {
+            "type":         "ConstantFreq",
+            "channels":     [0],
+            "onoff":        [1,1,0]
+        }, 
+        "constant_freq_2":
+        {
+            "type":         "ConstantFreq",
+            "channels":     [9],
+            "onoff":        [1,1,0]
+        }, 
+        "constant_freq_3":
+        {
+            "type":         "ConstantFreq",
+            "channels":     [1],
+            "onoff":        [1,1,0],
+            "start":        30
+        }, 
+        "constant_freq_4":
+        {
+            "type":         "ConstantFreq",
+            "channels":     [2],
+            "onoff":        [1,1,0],
+            "start":        30
+        },   
+        "constant_freq_5":
+        {
+            "type":         "ConstantFreq",
+            "channels":     [3],
+            "onoff":        [1,1,0],
+            "start":        30
+        }, 
+        "constant_freq_6":
+        {
+            "type":         "ConstantFreq",
+            "channels":     [4],
+            "onoff":        [1,1,0],
+            "start":        30
+        },
+        "constant_freq_7":
+        {
+            "type":         "ConstantFreq",
+            "channels":     [5],
+            "onoff":        [1,1,0],
+            "start":        30
+        },    
+        "constant_freq_8":
+        {
+            "type":         "ConstantFreq",
+            "channels":     [6],
+            "onoff":        [1,1,0],
+            "start":        30
+        }, 
+        "constant_freq_9":
+        {
+            "type":         "ConstantFreq",
+            "channels":     [8],
+            "onoff":        [1,1,0],
+            "start":        30
+        },  
+        "constant_freq_10":
+        {
+            "type":         "ConstantFreq",
+            "channels":     [7],
+            "onoff":        [1,1,0],
+            "start":        60,
+            "stop":         80
+        },                              
+        "test_entity":
+        {
+            "type":         "FixedHopFreq",
+            "channels":     [1,2,3,4,5,6,7,8],
+            "onoff":        [1,1,0],
+            "start":        0,
+            "stop":         29,
+            "rand_hop":     0
+        },            
+        "agile_freq_1":
+        {
+            "type":         "AgileFreq",
+            "channels":     [0,1,2,3,4,5,6,7,8,9],
+            "onoff":        [1,1,0],
+            "start":        0,
+            "stop":         100
+        }
+    },
+    "render":
+    {
+        "render_mode": "pyqt",
+        "render_fps": 10,
+        "render_history": 20,
+        "render_background": "black"
+    }
+}

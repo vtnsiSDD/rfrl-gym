@@ -1,0 +1,26 @@
+{
+    "environment": 
+    {
+	    "num_channels": 10,
+	    "max_steps": 100,
+	    "observation_mode": "classify",
+	    "reward_mode": "jam",
+        "target_entity": "constant_1"
+    },
+    "entities": 
+    {
+        "constant_1":
+        {
+            "type": "ConstantFreq",
+            "channels": [5],
+            "onoff": [1,1,0]
+        }
+    },
+    "render":
+    {
+        "render_mode": "pyqt",
+        "render_fps": 10,
+        "render_history": 20,
+        "render_background": "black"
+    }
+}

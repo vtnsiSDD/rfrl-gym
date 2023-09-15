@@ -1,0 +1,42 @@
+{
+    "environment": 
+    {
+	    "num_channels": 10,
+	    "max_steps": 100,
+	    "observation_mode": "classify",
+	    "reward_mode": "jam",
+        "target_entity": "hop_freq_1" 
+    },
+    "entities": 
+    { 
+        "fixed_freq_1":
+        {
+            "type": "ConstantFreq",
+            "channels": [0],
+            "onoff": [1,1,0]
+        },
+
+        "fixed_freq_2":
+        {
+            "type": "ConstantFreq",
+            "channels": [9],
+            "onoff": [1,1,0]
+        },
+        
+        "hop_freq_1":
+        {
+            "type": "FixedHopFreq",
+            "channels": [0,1,2,3,4,5,6,7,8,9],
+            "onoff": [1,1,0],
+            "rand_hop": 0
+        }
+
+    },
+    "render":
+    {
+        "render_mode": "pyqt",
+        "render_fps": 100,
+        "render_history": 20,
+        "render_background": "black"
+    }
+}
