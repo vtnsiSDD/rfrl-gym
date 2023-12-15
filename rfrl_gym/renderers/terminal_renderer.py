@@ -12,7 +12,7 @@ class TerminalRenderer(Renderer):
             for step in range(self.render_history):
                 if not step > self.info['step_number']:
                     channel_entity = self.info['observation_history'][self.info['step_number']-step][channel]
-                    if self.info['action_history'][self.info['step_number']-step] == channel:
+                    if self.info['action_history'][0][self.info['step_number']-step] == channel:
                         if channel_entity != 0 and self.observation_mode == 'classify':
                             if channel_entity == len(self.entity_list) + 1:
                                 print_element = 'xCx'                                

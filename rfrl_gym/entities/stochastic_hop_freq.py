@@ -4,11 +4,11 @@ from rfrl_gym.entities.entity import Entity
 # An entity that hops in a random pattern over a set of channels where the probability of chosing each channel is given by a user-defined weighting.
 class StochasticHopFreq(Entity):
     # channel_weights - A vector of probabilities corresponding to the channels vector that determines the probability of chosing each channel.
-    def __init__(self, entity_label, num_channels, channels, onoff=[1,1,0], start=None, stop=None, channel_weights=[]):
+    def __init__(self, entity_label, num_channels, channels, onoff=[1,1,0], start=None, stop=None, modem_params=None, channel_weights=[]):
         self.channel_weights = channel_weights
         if self.channel_weights == []:
             self.channel_weights = (1.0/len(channels))*np.ones(len(channels))
-        super().__init__(entity_label, num_channels, channels, onoff, start, stop)
+        super().__init__(entity_label, num_channels, channels, onoff, start, stop, modem_params)
             
     def _validate_self(self):
         if (len(self.channel_weights) != len(self.channels)) or round(np.sum(self.channel_weights),2) != 1.0:

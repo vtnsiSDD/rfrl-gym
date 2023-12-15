@@ -1,0 +1,5 @@
+*.zip
+*.egg-info
+rfrl-gym-venv
+*__pycache__
+*.pyc

@@ -4,9 +4,9 @@ from rfrl_gym.entities.entity import Entity
 # An entity that hops in a repeating pattern over a set of channels.
 class FixedHopFreq(Entity):
     # rand_hop - Toggles whether the channels vector is iterated through sequentially or in a repeating random order.
-    def __init__(self, entity_label, num_channels, channels, onoff=[1,1,0], start=None, stop=None, rand_hop=1):
+    def __init__(self, entity_label, num_channels, channels, onoff=[1,1,0], start=None, stop=None, modem_params=None, rand_hop=1):
         self.rand_hop = rand_hop
-        super().__init__(entity_label, num_channels, channels, onoff, start, stop)
+        super().__init__(entity_label, num_channels, channels, onoff, start, stop, modem_params)
 
         self.rng = np.random.default_rng()
         if self.rand_hop == 1:
