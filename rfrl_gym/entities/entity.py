@@ -9,13 +9,14 @@ class Entity:
     #                   Z is a positive integer that determines how many steps before turning on (if applicable).
     #        start - The time step number when the entity will be enabled and start executing its get_action() and cycle_onoff() functions.
     #         stop - The time step number when the entity will be disabled and stop executing its get_action() and cycle_onoff() functions.
-    def __init__(self, entity_label, num_channels, channels, onoff, start, stop):
+    def __init__(self, entity_label, num_channels, channels, onoff, start, stop, modem_params):
         self.entity_label = entity_label
         self.num_channels = num_channels
         self.channels = channels
         self.onoff = onoff   
         self.start = start
         self.stop = stop
+        self.modem_params = modem_params
 
         if self.start == None:
             self.start = 0

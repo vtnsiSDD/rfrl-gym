@@ -3,9 +3,9 @@ from rfrl_gym.entities.entity import Entity
 
 # An entity that hops in a repeating pattern over a set of channels.
 class SimpleJammer(Entity):
-    def __init__(self, entity_label, num_channels, channels, onoff=[1,1,0], start=None, stop=None, avoid_repeats=True):
+    def __init__(self, entity_label, num_channels, channels, onoff=[1,1,0], start=None, stop=None, modem_params=None, avoid_repeats=True):
         self.avoid_repeats = avoid_repeats
-        super().__init__(entity_label, num_channels, channels, onoff, start, stop)
+        super().__init__(entity_label, num_channels, channels, onoff, start, stop, modem_params)
     
     def _validate_self(self):
         pass       
@@ -15,8 +15,8 @@ class SimpleJammer(Entity):
             return -1
         elif self.on_flag == 1:  
             occupied_channels = np.zeros(self.num_channels)
-            if self.info['action_history'][self.info['step_number']-1] != -1:
-                occupied_channels[self.info['action_history'][self.info['step_number']-1]] = 1
+            if self.info['action_history'][0][self.info['step_number']-1] != -1:
+                occupied_channels[self.info['action_history'][0][self.info['step_number']-1]] = 1
             for idx in range(self.num_channels):
                 if (self.info['true_history'][self.info['step_number']-1][idx] != self.entity_idx) and (self.info['true_history'][self.info['step_number']-1][idx] != 0):
                     if occupied_channels[idx] == 1 or self.info['true_history'][self.info['step_number']-1][idx] == self.info["num_entities"]+1:

@@ -2,8 +2,8 @@ from rfrl_gym.entities.entity import Entity
 
 # An entity that always chooses the same action.
 class ConstantFreq(Entity):
-    def __init__(self, entity_label, num_channels, channels, onoff=[1,1,0], start=None, stop=None):
-        super().__init__(entity_label, num_channels, channels, onoff, start, stop)
+    def __init__(self, entity_label, num_channels, channels, onoff=[1,1,0], start=None, stop=None, modem_params=None):
+        super().__init__(entity_label, num_channels, channels, onoff, start, stop, modem_params)
 
     def _validate_self(self):
         pass

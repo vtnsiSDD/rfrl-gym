@@ -3,8 +3,8 @@ from rfrl_gym.entities.entity import Entity
 
 # An entity that hops in a repeating pattern over a set of channels.
 class AgileFreq(Entity):
-    def __init__(self, entity_label, num_channels, channels, onoff=[1,1,0], start=None, stop=None):
-        super().__init__(entity_label, num_channels, channels, onoff, start, stop)
+    def __init__(self, entity_label, num_channels, channels, onoff=[1,1,0], start=None, stop=None, modem_params=None):
+        super().__init__(entity_label, num_channels, channels, onoff, start, stop, modem_params)
     
     def _validate_self(self):
         pass
@@ -14,8 +14,8 @@ class AgileFreq(Entity):
             return -1
         elif self.on_flag == 1:
             occupied_channels = np.zeros(self.num_channels)
-            if self.info['action_history'][self.info['step_number']-1] != -1:
-                occupied_channels[self.info['action_history'][self.info['step_number']-1]] = 1
+            if self.info['action_history'][0][self.info['step_number']-1] != -1:
+                occupied_channels[self.info['action_history'][0][self.info['step_number']-1]] = 1
             for idx in range(self.num_channels):
                 if (self.info['true_history'][self.info['step_number']-1][idx] != self.entity_idx) and (self.info['true_history'][self.info['step_number']-1][idx] != 0):
                     occupied_channels[idx] = self.info['true_history'][self.info['step_number']-1][idx] > 0

@@ -1,4 +1,4 @@
-import gym
+import gymnasium as gym
 import time
 import json
 import numpy as np
@@ -6,8 +6,8 @@ from PyQt6.QtWidgets import QApplication
 import rfrl_gym.renderers
 import rfrl_gym.entities
 
-class RFRLGymEnv(gym.Env):
-    env_metadata = {'render_modes': ['null', 'terminal', 'pyqt'],
+class RFRLGymAbstractEnv(gym.Env):
+    metadata = {'render_modes': ['null', 'terminal', 'pyqt'], 'render_fps':4,
                     'reward_modes': ['dsa', 'jam'],
                     'observation_modes': ['detect', 'classify']}
 
@@ -45,6 +45,7 @@ class RFRLGymEnv(gym.Env):
         # Get the render parameters from the scenario file and initialize the render if necessary.
         self.render_mode = self.scenario_metadata['render']['render_mode']
         self.render_fps = self.scenario_metadata['render']['render_fps']
+        self.next_frame_time = 0
 
         if self.render_mode == 'pyqt':
             self.pyqt_app = QApplication([])
@@ -60,10 +61,10 @@ class RFRLGymEnv(gym.Env):
     def step(self, action):
         action -= 1
         self.info['step_number'] += 1
-        self.info['action_history'][self.info['step_number']] = action
+        self.info['action_history'][0][self.info['step_number']] = action
 
         # Get entity actions and determine player observation.
-        self.info['true_history'][self.info['step_number']], self.info['observation_history'][self.info['step_number']] = self.__get_entity_actions_and_observation()
+        self.info['true_history'][self.info['step_number']], self.info['observation_history'][self.info['step_number']] = self.__get_entity_actions_and_observation()     
 
         # Calculate the player reward.
         if action == -1:
@@ -83,29 +84,31 @@ class RFRLGymEnv(gym.Env):
             self.info['episode_reward'] = np.append(self.info['episode_reward'], self.info['cumulative_reward'][self.info['step_number']])
             done = True
 
-        return observation, reward, done, self.info
+        return int(observation), reward, done, done, self.info
 
     def reset(self, options={'reset_type':'soft'}, seed=None):
         # Temporarily store episode specific variables if they exist.
         if hasattr(self, 'info') and options['reset_type'] == 'soft':
             episode_number = self.info['episode_number']
-            episode_reward = self.info['episode_reward']            
+            episode_reward = self.info['episode_reward']         
         else:
             episode_number = -1
             episode_reward = np.array([], dtype=float)
             if self.render_mode == 'terminal':
                 self.renderer = rfrl_gym.renderers.terminal_renderer.TerminalRenderer(self.num_episodes, self.scenario_metadata)
             if self.render_mode == 'pyqt':
-                self.renderer = rfrl_gym.renderers.pyqt_renderer.PyQtRenderer(self.num_episodes, self.scenario_metadata)
-
+                self.renderer = rfrl_gym.renderers.pyqt_renderer.PyQtRenderer(self.num_episodes, self.scenario_metadata, mode='abstract')
+            if self.render_mode != 'null':
+                self.renderer.reset()
+        
         # Reset the gym info dictionary and if necessary restore episode variables.
         self.info = {}
         self.info['step_number'] = 0
         self.info['num_entities'] = self.num_entities
         self.info['num_episodes'] = self.num_episodes
         self.info['episode_reward'] = episode_reward  
-        self.info['episode_number'] = episode_number + 1              
-        self.info['action_history'] = -1+np.zeros(self.max_steps+1, dtype=int)
+        self.info['episode_number'] = episode_number + 1   
+        self.info['action_history'] = -1+np.zeros((self.num_entities+1, self.max_steps+1), dtype=int)
         self.info['true_history'] = np.zeros((self.max_steps+1, self.num_channels), dtype=int)
         self.info['observation_history'] = np.zeros((self.max_steps+1, self.num_channels), dtype=int)
         self.info['reward_history'] = np.zeros(self.max_steps+1, dtype=float)
@@ -116,31 +119,38 @@ class RFRLGymEnv(gym.Env):
             entity.reset(self.info)            
         self.info['true_history'][0], self.info['observation_history'][0] = self.__get_entity_actions_and_observation()
 
-        # Reset the render and set return variables.
-        self.renderer.reset()     
+        # Set return variables.  
         observation = self.__observation_space_encoder(self.info['observation_history'][0])
-        return observation
+        return int(observation), {}
         
-    def render(self, mode=None):
-        if mode == 'human' and self.render_mode != 'null':
-            self.renderer.render(self.info)                   
-            time.sleep(1.0/self.render_fps)
+    def render(self):
+        if self.render_mode != 'null':
+            if self.info['step_number'] == 0:
+                self.next_frame_time = time.time()
+            
+            self.renderer.render(self.info)  
+            self.next_frame_time += 1.0/self.render_fps
+            time.sleep(1/self.render_fps)
+
+            if time.time() < self.next_frame_time:
+                time.sleep(self.next_frame_time - time.time())
         return
 
-    def close(self):
+    def close(self):        
+        input('Press Enter to end the simulation...')
         return
 
     def __validate_scenario_metadata(self):
         # Validate scenario environment parameters.
         assert self.scenario_metadata['environment']['num_channels'] > 0, 'Environment parameter \'num_channels\' is invalid.'
         assert self.scenario_metadata['environment']['max_steps'] > 0, 'Environment parameter \'max_steps\' is invalid.'
-        assert self.scenario_metadata['environment']['observation_mode'] in self.env_metadata['observation_modes'], 'Invalid observation mode. Must be one of the following options: {}'.format(self.env_metadata["observation_modes"])
-        assert self.scenario_metadata['environment']['reward_mode'] in self.env_metadata['reward_modes'], 'Invalid reward mode. Must be one of the following options: {}'.format(self.env_metadata["reward_modes"])
+        assert self.scenario_metadata['environment']['observation_mode'] in self.metadata['observation_modes'], 'Invalid observation mode. Must be one of the following options: {}'.format(self.metadata["observation_modes"])
+        assert self.scenario_metadata['environment']['reward_mode'] in self.metadata['reward_modes'], 'Invalid reward mode. Must be one of the following options: {}'.format(self.metadata["reward_modes"])
         if self.scenario_metadata['environment']['reward_mode'] == 'jam':
             assert self.scenario_metadata['environment']['target_entity'] in self.scenario_metadata['entities'].keys() or self.scenario_metadata['environment']['target_entity'] == None, 'Invalid target entity name. Must correspond to the name of one of the entity labels in the scenario file.'
         
         # Validate scenario render parameters.
-        assert self.scenario_metadata['render']['render_mode'] is None or self.scenario_metadata['render']['render_mode'] in self.env_metadata['render_modes'], 'Invalid render mode. Must be one of the following options: {}'.format(self.env_metadata["render_modes"])
+        assert self.scenario_metadata['render']['render_mode'] is None or self.scenario_metadata['render']['render_mode'] in self.metadata['render_modes'], 'Invalid render mode. Must be one of the following options: {}'.format(self.metadata["render_modes"])
         assert self.scenario_metadata['render']['render_fps'] > 0, 'Render parameter \'render_fps\' is invalid.'
         assert self.scenario_metadata['render']['render_history'] > 0, 'Render parameter \'render_history\' is invalid.'
     
@@ -158,6 +168,7 @@ class RFRLGymEnv(gym.Env):
         for entity in self.entity_list:
             entity_idx += 1
             entity_action = entity.get_action(self.info)
+            self.info['action_history'][entity_idx][self.info['step_number']] = entity_action
             # If two or more entities' actions are to choose the same channel, set the observation to the number of entities + 1.
             if entity_action != -1:
                 if true_observation[entity_action] == 0:
