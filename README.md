@@ -1,6 +1,7 @@
 # Welcome to the IC CAE UGRA RFRL GYM Python Package!
 
-<img width="523" alt="logo" src="https://github.com/wcheadley/rfrl-gym/assets/15094176/f683967f-8d5a-49f5-ba99-819cd2d50a47">
+<img width="523" alt="logoblack" src="https://github.com/vtnsiSDD/rfrl-gym/assets/15094176/2da9506f-8a0e-46d2-9d07-c83f0858cc19">
+
 
 Note: Pardon our mess as this project is under active development. Please let us know of any feature requests or bugs to be squashed!
 
