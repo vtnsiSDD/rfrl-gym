@@ -47,3 +47,17 @@ A terminal output should print out showing the observation space upon successful
 `python3 scripts/sb3_example.py -m abstract`
 
 `python3 scripts/sb3_preview_scenario.py -m abstract`
+
+## How to reference
+
+Please use the following bibtex:
+```
+@inproceedings{rfrlgym,
+  Title = {{RFRL Gym: A Reinforcement Learning Testbed for Cognitive Radio Applications}},
+  Author = {D. Rosen, I. Rochez, C. McIrvin, J. Lee, K. D’Alessandro, M. Wiecek, N. Hoang, R. Saffarini, S. Philips, V. Jones, W. Ivey, Z. Harris-Smart, Z. Harris-Smart, Z. Chin, A. Johnson, A. Jones, W. C. Headley},
+  Booktitle = {{IEEE International Conference on Machine Learning and Applications (ICMLA)}},
+  Year = {2023},
+  Location = {Jacksonville, USA},
+  Month = {December},
+  Url = {}
+```
