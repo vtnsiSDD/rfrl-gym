@@ -1,9 +1,10 @@
-# Welcome to the IC CAE UGRA RFRL GYM Python Package!
+# Welcome to the RFRL GYM Python Package!
 
-<img width="523" alt="logoblack" src="https://github.com/vtnsiSDD/rfrl-gym/assets/15094176/2da9506f-8a0e-46d2-9d07-c83f0858cc19">
+<p align="center">
+  <img width="500" src="https://github.com/vtnsiSDD/rfrl-gym/assets/15094176/2da9506f-8a0e-46d2-9d07-c83f0858cc19" />
+</p>
 
-
-Note: Pardon our mess as this project is under active development. Please let us know of any feature requests or bugs to be squashed!
+_Note: Pardon our mess as this project is under active development. Please let us know of any feature requests or bugs to be squashed!_
 
 ## To install the codebase:
 
