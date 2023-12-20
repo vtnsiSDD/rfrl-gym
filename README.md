@@ -49,9 +49,7 @@ A terminal output should print out showing the observation space upon successful
 
 `python3 scripts/sb3_preview_scenario.py -m abstract`
 
-## How to reference
-
-Please use the following bibtex:
+## How to reference:
 ```
 @inproceedings{rfrlgym,
   Title = {{RFRL Gym: A Reinforcement Learning Testbed for Cognitive Radio Applications}},
