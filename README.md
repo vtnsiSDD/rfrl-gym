@@ -1,4 +1,4 @@
-<img align="right" width="300" src="https://github.com/vtnsiSDD/rfrl-gym/assets/15094176/2da9506f-8a0e-46d2-9d07-c83f0858cc19"> 
+<img align="right" width="400" src="https://github.com/vtnsiSDD/rfrl-gym/assets/15094176/2da9506f-8a0e-46d2-9d07-c83f0858cc19"> 
 
 # Welcome to the RFRL GYM Python Package!
 The RFRL Gym is intended as a training and research environment for wireless communications applications designed to provide comprehensive functionality, such as custom scenario generation, multiple learning settings, and compatibility with third-party RL packages. Additionally, through a gamified mode of the RF spectrum, this tool can be used to teach novices about the fields of AI/ML and RF.
