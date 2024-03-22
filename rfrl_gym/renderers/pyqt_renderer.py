@@ -225,7 +225,7 @@ class PyQtRenderer(Renderer, QMainWindow):
         self.sensingPlotItem.getAxis('left').setTextPen(self.pen_color)
         self.sensingPlotItem.setLabels(bottom='Channel Number',left='Step Number')
         self.colormap1 = pg.colormap.getFromMatplotlib('nipy_spectral')
-        self.bar1 = pg.ColorBarItem(cmap=self.colormap1, interactive=False)
+        self.bar1 = pg.ColorBarItem(colorMap=self.colormap1, interactive=False)
         self.grid_view1.setPen(pg.mkPen({'color': (255,255,255)}))  
         self.grid_view1.setTextPen(None)         
         self.grid_view1.setTickSpacing(x=[1.0],y=[1.0])  
@@ -253,7 +253,7 @@ class PyQtRenderer(Renderer, QMainWindow):
         self.spectrumPlotItem.addItem(self.spectrum_image_item)
         self.spectrumPlotItem.showAxes(True)
         self.colormap2 = pg.colormap.getFromMatplotlib('nipy_spectral')
-        self.bar2 = pg.ColorBarItem(cmap=self.colormap2, interactive=False)
+        self.bar2 = pg.ColorBarItem(colorMap=self.colormap2, interactive=False)
 
         self.spectrum_image_item.setColorMap(self.colormap2)
         self.spectrumPlotItem.setLabels(bottom='Frequency (Hz)',left='Time (samples)')
