@@ -5,7 +5,14 @@
 	    "max_steps": 100,
 	    "observation_mode": "detect",
 	    "reward_mode": "jam",
-        "target_entity": "fixed_hop_freq_1"
+        "target_entity": "fixed_hop_freq_1",
+        "detector": 
+        {
+            "energy_detector":
+            {
+                "type": "EnergyDetector"
+            }
+        }    
     },
     "entities": 
     {

@@ -4,6 +4,7 @@ import json
 import numpy as np
 from PyQt6.QtWidgets import QApplication
 import rfrl_gym.renderers
+import rfrl_gym.detectors
 import rfrl_gym.entities
 import rfrl_gym.datagen
 import scipy.signal as signal
@@ -28,6 +29,9 @@ class RFRLGymIQEnv(gym.Env):
         self.observation_mode = self.scenario_metadata['environment']['observation_mode']
         self.reward_mode = self.scenario_metadata['environment']['reward_mode']
         self.target_entity = self.scenario_metadata['environment']['target_entity']
+        detector = list(self.scenario_metadata['environment']['detector'].keys())[0]
+        det_obj_str = 'rfrl_gym.detectors.' + detector + '.' + self.scenario_metadata['environment']['detector'][detector]['type'] + '(num_channels=' + str(self.num_channels) + ')'
+        self.detector = eval(det_obj_str)
 
         self.t = np.linspace(0, self.samples_per_step, self.samples_per_step)
         self.fc = np.linspace(-0.5, 0.5, self.num_channels+1)+1/self.num_channels/2
@@ -65,23 +69,11 @@ class RFRLGymIQEnv(gym.Env):
             self.observation_base = 1+self.num_entities
         self.observation_space = gym.spaces.Discrete(self.observation_base**self.num_channels)
 
-    def _get_sensing_results(self):
-        # Note: when we get sensing results, they are the results for the frame rendered
-        # immediately before the environment's step() method was called
-        # Since the previous frame's sensing results were calculated in pyqt_renderer.py,
-        # we can just fetch it from self.info['sensing_energy_history']
-        for k in range(self.num_channels):
-            sensed_result = self.info['sensing_energy_history'][self.info['step_number']][k]
-            if sensed_result > 0.001:
-                self.info['sensing_history'][self.info['step_number']][k] = 1
-            else:
-                self.info['sensing_history'][self.info['step_number']][k] = 0
-
     def step(self, action):
         action -= 1
         self.info['step_number'] += 1
         self.info['action_history'][0][self.info['step_number']] = action
-        self._get_sensing_results()
+        self.info = self.detector.get_sensing_results(self.info)
 
         # Get entity actions and determine player observation.
         self.info['true_history'][self.info['step_number']], self.info['observation_history'][self.info['step_number']] = self.__get_entity_actions_and_observation()
