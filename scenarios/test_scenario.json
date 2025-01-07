@@ -3,7 +3,7 @@
     {
 	    "num_channels": 10,
 	    "max_steps": 100,
-	    "observation_mode": "detect",
+	    "observation_mode": "classify",
 	    "reward_mode": "jam",
         "target_entity": "fixed_hop_freq_1",
         "detector": 

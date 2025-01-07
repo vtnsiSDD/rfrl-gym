@@ -11,7 +11,7 @@ class _filterbase:
         self.delay = len(self.taps)
 
     def __upsample(self, symbs):
-        samps = np.zeros(self.sps*len(symbs)).astype('complex_')
+        samps = np.zeros(self.sps*len(symbs)).astype(np.csingle)
         for x in range(0, len(symbs)):
             samps[x*self.sps] = symbs[x]
         return samps
