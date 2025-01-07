@@ -88,10 +88,8 @@ class RFRLGymAbstractEnv(gym.Env):
 
     def reset(self, options={'reset_type':'soft'}, seed=None):
         # Temporarily store episode specific variables if they exist.
-        if hasattr(self, 'info') and options['reset_type'] == 'soft':
-            episode_number = self.info['episode_number']
-            episode_reward = self.info['episode_reward']         
-        else:
+
+        if options == None:
             episode_number = -1
             episode_reward = np.array([], dtype=float)
             if self.render_mode == 'terminal':
@@ -100,6 +98,12 @@ class RFRLGymAbstractEnv(gym.Env):
                 self.renderer = rfrl_gym.renderers.pyqt_renderer.PyQtRenderer(self.num_episodes, self.scenario_metadata, mode='abstract')
             if self.render_mode != 'null':
                 self.renderer.reset()
+        elif hasattr(self, 'info') and options['reset_type'] == 'soft':
+            episode_number = self.info['episode_number']
+            episode_reward = self.info['episode_reward']         
+        else:
+            print('Bad Case')
+
         
         # Reset the gym info dictionary and if necessary restore episode variables.
         self.info = {}

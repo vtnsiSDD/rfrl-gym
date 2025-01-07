@@ -3,3 +3,5 @@
 rfrl-gym-venv
 *__pycache__
 *.pyc
+*.env
+/build
