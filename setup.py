@@ -12,6 +12,7 @@ setup(name='rfrl-gym',
                         'pyqt6',
                         'scipy',
                         'dm_tree',
-                        'pyarrow'],
+                        'pyarrow',
+                        'pandas'],
       extras_require={'rl_packages': ['stable_baselines3']},
       packages= find_packages())
