@@ -1,20 +1,22 @@
 import distinctipy
 import numpy as np
 import pyqtgraph as pg
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, QLoggingCategory
 from PyQt6 import QtCore, QtGui
 from PyQt6.QtWidgets import QMainWindow, QApplication, QWidget, QGridLayout, QTreeWidget, QTreeWidgetItem, QHeaderView, QTabWidget, QLabel, QAbstractItemView
-from rfrl_gym.renderers.renderer import Renderer
-
+from rfrl_gym.renderers.ma_renderer import MultiAgentRenderer
+import pdb
 import time
 import matplotlib.pyplot as plt
 import scipy.signal as signal
 from scipy.fft import fftshift
 import random
+from rfrl_gym import repo_root_directory
 
-class PyQtRenderer(Renderer, QMainWindow):
+class MultiAgentPyQtRenderer(MultiAgentRenderer, QMainWindow):
     def __init__(self, num_episodes, scenario_metadata, mode):
-        super(PyQtRenderer, self).__init__(num_episodes, scenario_metadata)
+        super(MultiAgentPyQtRenderer, self).__init__(num_episodes, scenario_metadata)
+        QLoggingCategory.setFilterRules('*=false')
         self.max_steps = scenario_metadata['environment']['max_steps']
         self.render_background = scenario_metadata['render']['render_background']
         self.mode = mode
@@ -53,7 +55,7 @@ class PyQtRenderer(Renderer, QMainWindow):
  
         if self.mode == 'abstract':
             self.main_panel.addWidget(self.occupancy_view,                           1, 0, 2, 2)
-        elif self.mode == 'iq':
+        elif self.mode == 'iq': # not yet fully implemented for multi-agent
             self.__initialize_spectrum_view()  
             self.__initialize_sensing_view()
             self.tabs1 = QTabWidget()
@@ -123,7 +125,8 @@ class PyQtRenderer(Renderer, QMainWindow):
             self.__get_spectrogram_image()
             self.__get_sensing_image()  
             self.spectrum_image_item.setImage(self.spectrum_image)
-            self.sensing_image_item.setImage((self.sensing_image-np.min(self.sensing_image))/(np.max(self.sensing_image)-np.min(self.sensing_image)))
+            self.sensing_image_item.setImage((self.sensing_image - np.min(self.sensing_image)) / \
+                                             (np.max(self.sensing_image) - np.min(self.sensing_image)))
             self.bar1.setImageItem(self.spectrum_image_item, insert_in=self.spectrumPlotItem)  
             self.bar2.setImageItem(self.sensing_image_item, insert_in=self.sensingPlotItem)  
 
@@ -143,7 +146,10 @@ class PyQtRenderer(Renderer, QMainWindow):
 
         # Set the axes of the spectrum.
         if self.mode == 'iq':
-            num_range = [*range(self.samples_per_step*(self.info['step_number']-self.render_history+1)+int(self.samples_per_step/2),self.samples_per_step*(self.info['step_number']+1)+int(self.samples_per_step/2),self.samples_per_step)]
+            num_range = [*range(
+                self.samples_per_step * (self.info['step_number']-self.render_history+1) + int(self.samples_per_step/2),
+                self.samples_per_step*(self.info['step_number']+1)+int(self.samples_per_step/2),
+                self.samples_per_step)]
             x_range = list(map(str,num_range[::-1]))
             ticks = [((idx+0.5)*self.spectrum_image.shape[1]/self.render_history, label) for idx, label in enumerate(x_range)]
             self.spectrumPlotItem.getAxis('left').setTicks((ticks[0::self.spectrum_tick_scale], []))
@@ -152,12 +158,18 @@ class PyQtRenderer(Renderer, QMainWindow):
             self.spectrumPlotItem.getAxis('bottom').setTicks((ticks, []))
 
         # Update cumulative reward per step graph.
-        self.cummulative_reward_view.plot(self.info['cumulative_reward'][0:self.info['step_number']],pen=(0,255,0), penSize=1, symbol='o', symbolPen=(0,255,0), symbolSize=2.5, symbolBrush=(0,255,0))
+        for agent_id, color in zip(self.agents_info.keys(), self.entity_colors[self.num_entities:]): 
+            color =  tuple(np.multiply(255, color))
+            self.cummulative_reward_view.plot(
+                self.info['cumulative_reward'][agent_id][0:self.info['step_number']],
+                pen=color, penSize=1, symbol='o', symbolPen=color, symbolSize=2.5, symbolBrush=color)
      
         # Update cumulative reward per episode graph.        
         if self.num_episodes != 1:
-            self.episode_reward_view.plot(self.info['episode_reward'],pen=(0,255,0), penSize=1, symbol='o', symbolPen=(0,255,0), symbolSize=2.5, symbolBrush=(0,255,0))
-            self.__add_padding_to_plot_widget(self.episode_reward_view, padding=0.01)
+            for agent_id, color  in zip(self.agents_info.keys(), self.entity_colors[self.num_entities:]): 
+                self.episode_reward_view.plot(self.info['reward_history'][agent_id],
+                    pen=color, penSize=1, symbol='o', symbolPen=color, symbolSize=2.5, symbolBrush=color)
+                self.__add_padding_to_plot_widget(self.episode_reward_view, padding=0.01)
         
         if self.show_flag == 0:            
             self.show()
@@ -182,10 +194,12 @@ class PyQtRenderer(Renderer, QMainWindow):
         self.grid_view = pg.GridItem()
         if self.render_background == "white":
             self.grid_view.setPen("black",width=4)
-            self.occupancyPlotItem = self.occupancy_view.addPlot(row=0,col=0,lockAspect=False, border= pg.mkPen({'color': "#000000"}))            
+            self.occupancyPlotItem = self.occupancy_view.addPlot(row=0,col=0,lockAspect=False,
+                                                                 border= pg.mkPen({'color': "#000000"}))            
         elif self.render_background == "black":  
             self.grid_view.setPen(pg.mkPen({'color': (255,255,255)}))  
-            self.occupancyPlotItem = self.occupancy_view.addPlot(row=0,col=0,lockAspect=False, border= pg.mkPen({'color': "#FFFFFF"}))
+            self.occupancyPlotItem = self.occupancy_view.addPlot(row=0,col=0,lockAspect=False,
+                                                                 border= pg.mkPen({'color': "#FFFFFF"}))
         self.occupancyPlotItem.invertY(True)     
         self.occupancyPlotItem.setDefaultPadding(0.0) 
         self.occupancyPlotItem.setMouseEnabled(x=False,y=False)
@@ -195,7 +209,6 @@ class PyQtRenderer(Renderer, QMainWindow):
         self.occupancyPlotItem.getAxis('left').setTextPen(self.pen_color)
         self.occupancyPlotItem.setLabels(bottom='Channel Number',left='Step Number')
 
-        #self.grid_view = pg.GridItem()
         self.grid_view.setTextPen(None)         
         self.grid_view.setTickSpacing(x=[1.0],y=[1.0])  
 
@@ -210,9 +223,11 @@ class PyQtRenderer(Renderer, QMainWindow):
         self.grid_view1 = pg.GridItem()
         self.sensing_image_item = pg.ImageItem()
         if self.render_background == "white":
-            self.sensingPlotItem = self.sensing_view.addPlot(row=0,col=0,lockAspect=False, border= pg.mkPen({'color': "#000000"}))            
+            self.sensingPlotItem = self.sensing_view.addPlot(row=0,
+                col=0,lockAspect=False, border= pg.mkPen({'color': "#000000"}))            
         elif self.render_background == "black":  
-            self.sensingPlotItem = self.sensing_view.addPlot(row=0,col=0,lockAspect=False, border= pg.mkPen({'color': "#FFFFFF"}))
+            self.sensingPlotItem = self.sensing_view.addPlot(row=0,
+                col=0,lockAspect=False, border= pg.mkPen({'color': "#FFFFFF"}))
         self.sensingPlotItem.invertY(True)     
         self.sensingPlotItem.setDefaultPadding(0.0) 
         self.sensingPlotItem.setMouseEnabled(x=False,y=False)
@@ -237,9 +252,11 @@ class PyQtRenderer(Renderer, QMainWindow):
         self.spectrum_view = pg.GraphicsLayoutWidget()
         self.spectrum_image_item = pg.ImageItem()
         if self.render_background == "white":
-            self.spectrumPlotItem = self.spectrum_view.addPlot(row=0,col=0,lockAspect=False, border= pg.mkPen({'color': "#000000"}))            
+            self.spectrumPlotItem = self.spectrum_view.addPlot(row=0,
+                col=0,lockAspect=False, border= pg.mkPen({'color': "#000000"}))            
         elif self.render_background == "black":  
-            self.spectrumPlotItem = self.spectrum_view.addPlot(row=0,col=0,lockAspect=False, border= pg.mkPen({'color': "#FFFFFF"}))
+            self.spectrumPlotItem = self.spectrum_view.addPlot(row=0,
+                col=0,lockAspect=False, border= pg.mkPen({'color': "#FFFFFF"}))
         self.spectrumPlotItem.invertY(True)
         self.spectrumPlotItem.setDefaultPadding(0.0) 
         self.spectrumPlotItem.setMouseEnabled(x=False,y=False)
@@ -259,9 +276,11 @@ class PyQtRenderer(Renderer, QMainWindow):
         self.logo_view = pg.GraphicsLayoutWidget()
         self.logo_image_item = pg.ImageItem()
         if self.render_background == "white":
-            self.logoPlotItem = self.logo_view.addPlot(row=0,col=0,lockAspect=True, border= pg.mkPen({'color': "#000000"}))            
+            self.logoPlotItem = self.logo_view.addPlot(row=0,
+                col=0,lockAspect=True, border= pg.mkPen({'color': "#000000"}))            
         elif self.render_background == "black":  
-            self.logoPlotItem = self.logo_view.addPlot(row=0,col=0,lockAspect=True, border= pg.mkPen({'color': "#FFFFFF"}))
+            self.logoPlotItem = self.logo_view.addPlot(row=0,
+                col=0,lockAspect=True, border= pg.mkPen({'color': "#FFFFFF"}))
         im = plt.imread('logowhite.png', format='png')
         self.logo_image_item.setImage(np.rot90(im,k=3))
         self.logo_view.setFixedSize(im.shape[1],im.shape[0])
@@ -287,25 +306,31 @@ class PyQtRenderer(Renderer, QMainWindow):
         self.legend_view.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
         self.legend_view.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
         self.legend_view.setColumnCount(1)
-        self.entity_colors = distinctipy.get_colors(self.num_entities,
+        self.entity_colors = distinctipy.get_colors(self.num_entities + self.num_agents,
             [(0,0,0),(1,1,1),(1,0,0),(0,1,0),(0,0,1),(1,1,0)], rng=self.random_seed)
 
-
-        #TODO:Give Color Scheme for All Agents
+        # In the self.entity_colors list, the first portion corresponds to entities
+        # and the agents' colors come after.
         legend = []
-        legend.append(('Player',(0,255,0)))
+
+        # Adds the agents to the legend
+        for agent_num, (agent_id, info) in enumerate(self.agents_info.items()):
+            agent_color = self.entity_colors[-1*self.num_agents+agent_num]
+            agent_color = tuple([int(255*a_color) for a_color in agent_color])
+            legend.append((f'{agent_id} (Agent)', agent_color)) # Gives a color to the specific agent
+
+        # Adds the other things to the legend
         if self.observation_mode == 'classify':
             entity_idx = 0
             for entity in self.entity_list:
                 entity_idx += 1
-                label = str(entity) + ' Entity'
+                label = str(entity) + ' (Entity)'
                 color = np.multiply(255, self.entity_colors[entity_idx-1])                
                 legend.append((label,color))
-            legend.append(('Multi-Entity Collision','yellow'))
-            legend.append(('Player Collision','red'))
+            legend.append(('Collision Between Entities','yellow'))
+            legend.append((f'Collision Involving Agent(s)','red'))
         elif self.observation_mode == 'detect':
-            legend.append(('Entities','blue'))
-            legend.append(('Player Collision w/Entity','red'))
+            legend.append(('Non-Empty Channel','blue'))
 
         item = QTreeWidgetItem(self.legend_view)
         item.setDisabled(True)
@@ -329,20 +354,11 @@ class PyQtRenderer(Renderer, QMainWindow):
             painter.end()
             item.setIcon(0,QtGui.QIcon(pixmap))
             item.setText(0,entity_label)
-            
-            #testing_item = QTreeWidgetItem(self.legend_view)
-            #testing_item.setForeground(0, QtGui.QBrush(QtGui.QColor(255,255,255)))
-            
-            #testing_item.setText(0, '    Hello World')
-            #item.addChild(testing_item)
-            #self.legend_view.addTopLevelItem(item)
-
 
     def __initialize_cummulative_reward_view(self):
-        #TODO: MAKE THIS WORK FOR ALL AGENTS 
-
         self.cummulative_reward_view = pg.PlotWidget(lockAspect=False)
         self.cummulative_reward_view.setMouseEnabled(x=False,y=False)
+
          # Set up the cumulative reward per step widget.
         tick_scale = self.__get_tick_scale(self.max_steps)
         self.cummulative_reward_view.setTitle("Cumulative Reward per Step", color=self.pen_color)
@@ -360,7 +376,6 @@ class PyQtRenderer(Renderer, QMainWindow):
         self.cummulative_reward_view.showAxes(True)
 
     def __initialize_episode_reward_view(self):
-        #TODO: Make this work for all agents
         self.episode_reward_view = pg.PlotWidget(lockAspect=False)
         self.episode_reward_view.setMouseEnabled(x=False,y=False)
         tick_scale = self.__get_tick_scale(self.num_episodes)
@@ -393,20 +408,29 @@ class PyQtRenderer(Renderer, QMainWindow):
                 self.occupancy_image[channel,0,:] = [255,255,255]
             elif self.render_background == "black":
                 self.occupancy_image[channel,0,:] = [0,0,0]
-            channel_entity = self.info['observation_history'][self.info['step_number']][channel]
-            if self.info['action_history'][0][self.info['step_number']] == channel:
-                if channel_entity != 0:
-                    self.occupancy_image[channel, 0, :] = [255, 0, 0]
-                else:
-                    self.occupancy_image[channel, 0, :] = [0, 255, 0]
-            else:
-                if self.observation_mode == 'detect' and channel_entity != 0:
-                    self.occupancy_image[channel, 0, :] = [0, 0, 255]
-                elif self.observation_mode == 'classify' and channel_entity != 0:
-                    if channel_entity == self.num_entities + 1:
-                        self.occupancy_image[channel, 0, :] = [255, 255, 0]
-                    else:
+            channel_entity = self.info['true_history'][self.info['step_number']][channel]
+
+            # Checks if the channel is non-empty.
+            if channel_entity > 0:
+                if self.observation_mode == "detect":
+                    self.occupancy_image[channel, 0, :] = [0, 0, 255] # Blue
+
+                elif self.observation_mode == "classify":
+                    # Here, there is no collision.
+                    if channel_entity <= self.num_entities + self.num_agents:
                         self.occupancy_image[channel, 0, :] = np.multiply(255, self.entity_colors[channel_entity-1])
+
+                    # Here, there is a collision.
+                    else:
+                        involves_an_agent = False
+                        for agent_id in self.agents_info:
+                            if self.info["action_history"][agent_id][0][self.info["step_number"]] == channel:
+                                involves_an_agent = True
+                                break
+                        if involves_an_agent:
+                            self.occupancy_image[channel, 0, :] = [255, 0, 0] # Red
+                        else:
+                            self.occupancy_image[channel, 0, :] = [255, 255, 0] # Yellow
 
     def __get_spectrogram_image(self):
         _, _, image = signal.spectrogram(self.info['spectrum_data'], nperseg=512, noverlap=0, return_onesided=False)

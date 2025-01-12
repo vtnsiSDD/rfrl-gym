@@ -1,0 +1,37 @@
+{
+    "environment": 
+    {
+	    "num_channels": 10,
+	    "max_steps": 100,
+	    "observation_mode": "detect",
+	    "reward_mode": "dsa",
+        "target_entity": "fixed_hop_1"
+    },
+    "entities": 
+    {
+        "fixed_hop_1": 
+        {
+            "type": "FixedHopFreq",
+            "channels": [0,1,2,3,4,5,6,7,8,9],
+            "onoff": [1,1,0],
+            "rand_hop": 0,
+            "modem_params":
+            {
+                "type": "psk",
+                "order": 4,
+                "filter": "RRC",
+                "center_frequency": [-0.1,0.1],
+                "bandwidth": 0.5,
+                "start": 0.5,
+                "duration": 0.25
+            }
+        }
+    },
+    "render":
+    {
+        "render_mode": "pyqt",
+        "render_fps": 200,
+        "render_history": 20,
+        "render_background": "black"
+    }
+}

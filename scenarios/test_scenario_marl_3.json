@@ -1,0 +1,79 @@
+{
+    "environment": 
+    {
+	    "num_channels": 10,
+	    "max_steps": 100,
+        "comments": [
+            "\"Scenario 1\" from the MARL paper.",
+
+            "Four agents, and two constant frequency entities (channel 2 and channel 9).",
+            "The observation modes vary, the reward modes are all 'jam'",
+            "and the target entities vary."
+        ],
+        "agents": {
+            "agent_1": {
+                "observation_mode": "detect",
+                "reward_mode": "jam",
+                "target_entity": "constant_freq_1"
+            },
+            "agent_2": {
+                "observation_mode": "classify",
+                "reward_mode": "jam",
+                "target_entity": "constant_freq_1"
+            },
+            "agent_3": {
+                "observation_mode": "detect",
+                "reward_mode": "jam",
+                "target_entity": "constant_freq_2"
+            },
+            "agent_4": {
+                "observation_mode": "classify",
+                "reward_mode": "jam",
+                "target_entity": "constant_freq_2"
+            }
+        }
+    },
+    "entities": 
+    {
+        "constant_freq_1": 
+        {
+            "type": "ConstantFreq",
+            "channels": [2],
+            "onoff": [1,1,0],
+            "modem_params":
+            {
+                "type": "qam",
+                "order": 16,
+                "filter": "RRC",
+                "center_frequency": [-0.1,0.1],
+                "bandwidth": 0.25,
+                "start": 0.25,
+                "duration": 0.25
+            }
+        },
+        "constant_freq_2":
+        {
+            "type": "ConstantFreq",
+            "channels": [9],
+            "onoff": [1,1,0],
+            "modem_params":
+            {
+                "type": "psk",
+                "order": 4,
+                "filter": "RRC",
+                "center_frequency": [-0.1,0.1],
+                "bandwidth": 0.5,
+                "start": 0.5,
+                "duration": 0.25
+            }
+        }       
+    },
+    "render":
+    {
+        "render_mode": "pyqt",
+        "render_fps": 100,
+        "render_history": 20,
+        "render_background": "black",
+        "observation_mode": "classify"
+    }
+}

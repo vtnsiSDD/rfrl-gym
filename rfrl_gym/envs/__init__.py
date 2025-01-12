@@ -1,2 +1,3 @@
 from rfrl_gym.envs.rfrl_gym_abstract_env import RFRLGymAbstractEnv
 from rfrl_gym.envs.rfrl_gym_iq_env import RFRLGymIQEnv
+from rfrl_gym.envs.ma_rfrl_gym_abstract_env import RFRLGymMultiAgentAbstractEnv

@@ -53,6 +53,7 @@ class TerminalRenderer(Renderer):
         print('')
         
         # Print the legend to the terminal.
+        print(f"Legend:")
         if self.observation_mode == 'classify':
             entity_idx = 0
             print(' 0 : Player')

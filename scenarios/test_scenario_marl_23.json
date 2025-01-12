@@ -3,9 +3,36 @@
     {
 	    "num_channels": 10,
 	    "max_steps": 100,
-	    "observation_mode": "classify",
-	    "reward_mode": "jam",
-        "target_entity": "fixed_hop_freq_1"
+        "comments": [
+            "\"Scenario 5\" from the MARL paper.",
+
+            "Essentially an alternative version of Scenario 10.",
+            "Four agents, and four entities (varying from constant frequency to fixed hop frequency).",
+            "The observation modes vary, the reward modes vary,",
+            "and the target entities vary."
+        ],
+        "agents": {
+            "agent_1": {
+                "observation_mode": "detect",
+                "reward_mode": "dsa",
+                "target_entity": null
+            },
+            "agent_2": {
+                "observation_mode": "classify",
+                "reward_mode": "dsa",
+                "target_entity": null
+            },
+            "agent_3": {
+                "observation_mode": "classify",
+                "reward_mode": "jam",
+                "target_entity": "fixed_hop_freq_2"
+            },
+            "agent_4": {
+                "observation_mode": "detect",
+                "reward_mode": "jam",
+                "target_entity": "constant_freq_2"
+            }
+        }
     },
     "entities": 
     {
@@ -79,6 +106,7 @@
         "render_mode": "pyqt",
         "render_fps": 100,
         "render_history": 20,
-        "render_background": "black"
+        "render_background": "black",
+        "observation_mode": "classify"
     }
 }

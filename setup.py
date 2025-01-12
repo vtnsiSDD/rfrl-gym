@@ -10,7 +10,8 @@ setup(name='rfrl-gym',
                         'distinctipy',
                         'pyqtgraph',
                         'pyqt6',
-                        'scipy'],
-      extras_require={'rl_packages': ['stable_baselines3[extra]==2.5.0a1']},
+                        'scipy',
+                        'dm_tree',
+                        'pyarrow'],
+      extras_require={'rl_packages': ['stable_baselines3']},
       packages= find_packages())
-

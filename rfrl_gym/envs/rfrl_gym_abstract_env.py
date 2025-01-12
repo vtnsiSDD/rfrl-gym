@@ -59,7 +59,7 @@ class RFRLGymAbstractEnv(gym.Env):
         self.observation_space = gym.spaces.Discrete(self.observation_base**self.num_channels)
 
     def step(self, action):
-        action -= 1
+        action -= 1 # because we can't have a negative output from the model, but we want -1 to be no transmission
         self.info['step_number'] += 1
         self.info['action_history'][0][self.info['step_number']] = action
 
@@ -88,8 +88,10 @@ class RFRLGymAbstractEnv(gym.Env):
 
     def reset(self, options={'reset_type':'soft'}, seed=None):
         # Temporarily store episode specific variables if they exist.
-
-        if options == None:
+        if hasattr(self, 'info') and options['reset_type'] == 'soft':
+            episode_number = self.info['episode_number']
+            episode_reward = self.info['episode_reward']         
+        else:
             episode_number = -1
             episode_reward = np.array([], dtype=float)
             if self.render_mode == 'terminal':
@@ -98,19 +100,13 @@ class RFRLGymAbstractEnv(gym.Env):
                 self.renderer = rfrl_gym.renderers.pyqt_renderer.PyQtRenderer(self.num_episodes, self.scenario_metadata, mode='abstract')
             if self.render_mode != 'null':
                 self.renderer.reset()
-        elif hasattr(self, 'info') and options['reset_type'] == 'soft':
-            episode_number = self.info['episode_number']
-            episode_reward = self.info['episode_reward']         
-        else:
-            print('Bad Case')
-
         
         # Reset the gym info dictionary and if necessary restore episode variables.
         self.info = {}
         self.info['step_number'] = 0
         self.info['num_entities'] = self.num_entities
         self.info['num_episodes'] = self.num_episodes
-        self.info['episode_reward'] = episode_reward  
+        self.info['episode_reward'] = episode_reward
         self.info['episode_number'] = episode_number + 1   
         self.info['action_history'] = -1+np.zeros((self.num_entities+1, self.max_steps+1), dtype=int)
         self.info['true_history'] = np.zeros((self.max_steps+1, self.num_channels), dtype=int)
@@ -141,7 +137,7 @@ class RFRLGymAbstractEnv(gym.Env):
         return
 
     def close(self):        
-        input('Press Enter to end the simulation...')
+        input('Press Enter to end the simulation...\n')
         return
 
     def __validate_scenario_metadata(self):

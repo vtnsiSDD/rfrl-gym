@@ -1,2 +1,4 @@
 from rfrl_gym.renderers.pyqt_renderer import PyQtRenderer as PyQtRenderer
 from rfrl_gym.renderers.terminal_renderer import TerminalRenderer as TerminalRenderer
+from rfrl_gym.renderers.ma_terminal_renderer import MultiAgentTerminalRenderer
+from rfrl_gym.renderers.ma_pyqt_renderer import MultiAgentPyQtRenderer

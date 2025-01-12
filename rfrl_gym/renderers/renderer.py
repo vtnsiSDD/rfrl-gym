@@ -7,6 +7,7 @@ class Renderer:
         self.render_history = scenario_metadata['render']['render_history']
         self.entity_list = scenario_metadata['entities']
         self.num_entities = len(scenario_metadata['entities'])
+        self.random_seed = 1048596
 
     def render(self, info):
         self.info = info
