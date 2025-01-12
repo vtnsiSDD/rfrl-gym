@@ -214,8 +214,15 @@ class RFRLGymMultiAgentAbstractEnv(MultiAgentEnv):
     
     def render(self):
         if self.render_mode != 'null':
-            self.renderer.render(self.info, self.agents_info)                   
-            time.sleep(1.0 / self.render_fps)
+            if self.info['step_number'] == 0:
+                self.next_frame_time = time.time()
+            
+            self.renderer.render(self.info, self.agents_info)  
+            self.next_frame_time += 1.0/self.render_fps
+            time.sleep(1/self.render_fps)
+
+            if time.time() < self.next_frame_time:
+                time.sleep(self.next_frame_time - time.time())
         return
 
     def close(self):        

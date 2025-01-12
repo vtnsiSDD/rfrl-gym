@@ -4,7 +4,7 @@ Multi-agent DQN testing script.
 
 import os
 import sys
-sys.stderr = open(os.devnull, 'w')
+#sys.stderr = open(os.devnull, 'w')
 
 import argparse
 import pickle

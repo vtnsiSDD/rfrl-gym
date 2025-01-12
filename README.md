@@ -144,6 +144,9 @@ This will instance the packages within "extras_require" entry in setup.py
 
 ## For testing the MARL environment:
 
+### Install extra dependencies:
+`pip3 install -r marl_checkpoints/requirements.txt`
+
 ### To run with the MARL scripts:
 `pip3 install "ray[rllib]"==2.31.0`
 
