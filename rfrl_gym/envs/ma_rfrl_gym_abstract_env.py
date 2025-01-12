@@ -223,7 +223,7 @@ class RFRLGymMultiAgentAbstractEnv(MultiAgentEnv):
 
             if time.time() < self.next_frame_time:
                 time.sleep(self.next_frame_time - time.time())
-        return
+        return  
 
     def close(self):        
         input('Press any key to end the simulation...\n')
