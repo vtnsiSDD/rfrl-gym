@@ -145,7 +145,7 @@ This will instance the packages within "extras_require" entry in setup.py
 ## For testing the MARL environment:
 
 ### To run with the MARL scripts:
-`pip3 install ray==2.31.0`
+`pip3 install "ray[rllib]"==2.31.0`
 
 ### To test installation of the MARL extension:
 `python3 scripts/marl_preview_scenario.py`
