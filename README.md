@@ -1,6 +1,13 @@
-# Welcome to the IC CAE UGRA RFRL GYM Python Package!
+<img align="right" width="400" src="https://github.com/vtnsiSDD/rfrl-gym/assets/15094176/2da9506f-8a0e-46d2-9d07-c83f0858cc19"> 
 
-<img width="523" alt="logo" src="https://github.com/wcheadley/rfrl-gym/assets/15094176/f683967f-8d5a-49f5-ba99-819cd2d50a47">
+# Welcome to the RFRL GYM Python Package!
+The RFRL Gym is intended as a training and research environment for wireless communications applications designed to provide comprehensive functionality, such as custom scenario generation, multiple learning settings, and compatibility with third-party RL packages. Additionally, through a gamified mode of the RF spectrum, this tool can be used to teach novices about the fields of AI/ML and RF.
+
+ Jamming Agent before Learning            |  Jamming Agent after Learning
+:----------------------------------------:|:-----------------------------:
+![initial](https://github.com/vtnsiSDD/rfrl-gym/assets/15094176/aebf248f-b71b-4692-a35f-79091a6e8371) | ![learned](https://github.com/vtnsiSDD/rfrl-gym/assets/15094176/452fefff-0c9d-4d1e-91ac-d722985421ac)
+
+_Note: Pardon our mess as this project is under active development. Please let us know of any feature requests or bugs to be squashed!_
 
 ## To install the codebase:
 
@@ -145,7 +152,7 @@ This will instance the packages within "extras_require" entry in setup.py
 ## For testing the multi-agent environment:
 
 ### Install extra dependencies:
-`pip3 install -r marl_checkpoints/requirements.txt`
+`pip3 install -r requirements.txt`
 
 ### To run with the multi-agent scripts:
 `pip3 install "ray[rllib]"==2.31.0`
