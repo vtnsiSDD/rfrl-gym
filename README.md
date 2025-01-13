@@ -69,7 +69,7 @@ To use the MARL extension of the RFRL Gym, please refer to the `marl-dev` branch
 
 ## How to reference the multi-agent RFRL GYM:
 ```
-@inproceedings{rfrlgym,
+@inproceedings{marl-rfrlgym,
   Title = {{A Multi-Agent Reinforcement Learning Testbed for Cognitive Radio Applications}},
   Author = {S. Vangaru, D. Rosen, D. Green, R. Rodriguez, M. Wiecek, Johnson, A. M. Jones, W. C. Headley},
   Booktitle = {{IEEE Consumer Communications & Networking Conference}},
