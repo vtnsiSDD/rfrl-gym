@@ -52,7 +52,10 @@ A terminal output should print out showing the observation space upon successful
 
 `python3 scripts/sb3_preview_scenario.py -m abstract`
 
-## How to reference:
+## MARL Extension:
+To use the MARL extension of the RFRL Gym, please refer to the `marl-dev` branch (https://github.com/vtnsi/rfrl-gym/tree/marl-dev).
+
+## How to reference the single-agent RFRL GYM:
 ```
 @inproceedings{rfrlgym,
   Title = {{RFRL Gym: A Reinforcement Learning Testbed for Cognitive Radio Applications}},
@@ -61,5 +64,17 @@ A terminal output should print out showing the observation space upon successful
   Year = {2023},
   Location = {Jacksonville, USA},
   Month = {December},
+  Url = {}
+```
+
+## How to reference the multi-agent RFRL GYM:
+```
+@inproceedings{rfrlgym,
+  Title = {{A Multi-Agent Reinforcement Learning Testbed for Cognitive Radio Applications}},
+  Author = {S. Vangaru, D. Rosen, D. Green, R. Rodriguez, M. Wiecek, Johnson, A. M. Jones, W. C. Headley},
+  Booktitle = {{IEEE Consumer Communications & Networking Conference}},
+  Year = {2025},
+  Location = {Las Vegas, USA},
+  Month = {January},
   Url = {}
 ```
