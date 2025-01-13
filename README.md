@@ -142,12 +142,12 @@ A terminal output should print out showing the observation space upon successful
 
 This will instance the packages within "extras_require" entry in setup.py
 
-## For testing the MARL environment:
+## For testing the multi-agent environment:
 
 ### Install extra dependencies:
 `pip3 install -r marl_checkpoints/requirements.txt`
 
-### To run with the MARL scripts:
+### To run with the multi-agent scripts:
 `pip3 install "ray[rllib]"==2.31.0`
 
 ### To test installation of the MARL extension:
@@ -160,3 +160,16 @@ This will instance the packages within "extras_require" entry in setup.py
 `python3 scripts/marl_dqn_testing.py my_saved_checkpoint`
 
 In general, it's recommended to ensure that the scenario which was used for training a set of agents is the same scenario used when loading the saved policies and evaluating them. This can be done by specifying the `--scenario` argument to both scripts.
+
+
+## How to reference the multi-agent RFRL GYM:
+```
+@inproceedings{rfrlgym,
+  Title = {{A Multi-Agent Reinforcement Learning Testbed for Cognitive Radio Applications}},
+  Author = {S. Vangaru, D. Rosen, D. Green, R. Rodriguez, M. Wiecek, Johnson, A. M. Jones, W. C. Headley},
+  Booktitle = {{IEEE Consumer Communications & Networking Conference}},
+  Year = {2025},
+  Location = {Las Vegas, USA},
+  Month = {January},
+  Url = {}
+```
