@@ -140,8 +140,10 @@ class RFRLGymAbstractEnv(gym.Env):
                 time.sleep(self.next_frame_time - time.time())
         return
 
-    def close(self):        
-        input('Press Enter to end the simulation...')
+    def close(self):
+        # request the user close the simulation
+        if self.render_mode == 'pyqt':
+            input('Press Enter to end the simulation...')
         return
 
     def __validate_scenario_metadata(self):
