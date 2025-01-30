@@ -159,7 +159,9 @@ class RFRLGymIQEnv(gym.Env):
         return
 
     def close(self):        
-        input('Press Enter to end the simulation...')
+        # request the user close the simulation
+        if self.render_mode == 'pyqt':
+            input('Press Enter to end the simulation...')
         return
 
     def __validate_scenario_metadata(self):

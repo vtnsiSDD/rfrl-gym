@@ -9,6 +9,8 @@ The RFRL Gym is intended as a training and research environment for wireless com
 
 _Note: Pardon our mess as this project is under active development. Please let us know of any feature requests or bugs to be squashed!_
 
+![python package workflow](https://github.com/ljmciver/rfrl-gym/actions/workflows/python-package.yml/badge.svg)
+
 ## To install the codebase:
 
 ### Linux (verified in Ubuntu)
