@@ -1,0 +1,37 @@
+# This workflow will install the tool with dependencies and then run the examples as tests with output to the terminal
+# It will run jobs in the two latest versions of Ubuntu with different python versions
+
+name: Python package
+
+on: # run this on every push and pull request on all branches
+  push:
+    branches:
+      - '*'  
+  pull_request:
+    branches:
+      - '*'  
+
+jobs:
+  build:
+    strategy:
+      fail-fast: true # cancel all jobs if one job in the matrix fails
+      matrix: # run a job on each combintation of os and python versions
+        os: [ubuntu-24.04, ubuntu-22.04]
+        # use the available python versions for os versions (nothing older than v3.11 is available for both) : https://raw.githubusercontent.com/actions/python-versions/main/versions-manifest.json
+        python-version: ["3.11.0", "3.12.0", "3.13.0"]
+        
+    runs-on: ${{ matrix.os }}
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python ${{ matrix.python-version }} in ${{ matrix.os }}
+      uses: actions/setup-python@v3
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install tool with dependencies
+      run: |
+        sudo apt-get install -y libegl-dev # install dependency for PyQt6
+        pip install .
+    - name: Test 
+      run: | # run both examples with all output printed to the terminal
+       python scripts/preview_scenario.py -m abstract -s test_scenario_terminal.json
+       python scripts/preview_scenario.py -m iq -s test_scenario_terminal.json
