@@ -6,8 +6,11 @@ from PyQt6.QtWidgets import QApplication
 import rfrl_gym.renderers
 import rfrl_gym.detectors
 import rfrl_gym.entities
-import rfrl_gym.datagen
+#import rfrl_gym.datagen
 import scipy.signal as signal
+from pywaspgen.burst_datagen import BurstDatagen
+from pywaspgen.burst_def import BurstDef
+from pywaspgen.iq_datagen import IQDatagen
 
 class RFRLGymIQEnv(gym.Env):
     metadata = {'render_modes': ['null', 'terminal', 'pyqt'], 'render_fps':4,
@@ -69,6 +72,24 @@ class RFRLGymIQEnv(gym.Env):
             self.observation_base = 1+self.num_entities
         self.observation_space = gym.spaces.Discrete(self.observation_base**self.num_channels)
 
+        ##################################################################
+        self.pywaspgen_burst_gen = BurstDatagen("pywaspgen/configs/default.json")
+        self.pywaspgen_iq_gen = IQDatagen("pywaspgen/configs/default.json")
+        self.user_burst_list = []
+
+        for entity in self.scenario_metadata['entities']:
+            self.user_burst_list.append
+            (
+                BurstDef(
+                    cent_freq=0,
+                    bandwidth=0.35,
+                    start=10000,
+                    duration=80000,
+                    sig_type={"label": "64QAM", "format": "qam", "order": 64},
+                )
+            )
+        ##################################################################
+
     def step(self, action):
         action -= 1
         self.info['step_number'] += 1
@@ -77,7 +98,20 @@ class RFRLGymIQEnv(gym.Env):
 
         # Get entity actions and determine player observation.
         self.info['true_history'][self.info['step_number']], self.info['observation_history'][self.info['step_number']] = self.__get_entity_actions_and_observation()
-        self.info['spectrum_data'] = self.iq_gen.gen_iq(self.info['action_history'][:,self.info['step_number']])
+        
+        #self.info['spectrum_data'] = self.iq_gen.gen_iq(self.info['action_history'][:,self.info['step_number']])
+
+        ##################################################################
+        self.info['spectrum_data'], self.updated_burst_list = self.pywaspgen_iq_gen.gen_iqdata(self.user_burst_list)
+
+        # for entity, create the burst for each
+        # then call iqgen with all of the bursts
+        # seperate 
+        # for entity in list
+        #     iqgen = call to file (burst_list[entity])
+        #     samples_entity += slice
+
+        ##################################################################
 
         # Calculate the player reward.
         if action == -1:
@@ -136,10 +170,14 @@ class RFRLGymIQEnv(gym.Env):
         for entity in self.entity_list:
             entity.reset(self.info)            
         self.info['true_history'][0], self.info['observation_history'][0] = self.__get_entity_actions_and_observation()
-        
-        self.iq_gen = rfrl_gym.datagen.iq_gen.IQ_Gen(self.num_channels, self.num_entities, self.scenario_metadata['render']['render_history'], self.entity_list)
-        self.iq_gen.reset()
-        self.info['spectrum_data'] = self.iq_gen.gen_iq(self.info['action_history'][:,self.info['step_number']])
+
+        #self.iq_gen = rfrl_gym.datagen.iq_gen.IQ_Gen(self.num_channels, self.num_entities, self.scenario_metadata['render']['render_history'], self.entity_list)
+        #self.iq_gen.reset()
+        #self.info['spectrum_data'] = self.iq_gen.gen_iq(self.info['action_history'][:,self.info['step_number']])
+
+        ##################################################################
+        self.info['spectrum_data'], self.updated_burst_list = self.pywaspgen_iq_gen.gen_iqdata(self.user_burst_list)
+        ##################################################################
 
         # Reset the render and set return variables.
         observation = self.__observation_space_encoder(self.info['observation_history'][0])
