@@ -77,6 +77,43 @@ class RFRLGymIQEnv(gym.Env):
         self.pywaspgen_iq_gen = IQDatagen("pywaspgen/configs/default.json")
         self.user_burst_list = []
 
+        # self.user_burst_list.append(
+        #     BurstDef(
+        #         cent_freq=0.3,
+        #         bandwidth=0.2,
+        #         start=1000,
+        #         duration=50000,
+        #         sig_type={"label": "BASK", "format": "ask", "order": 2},
+        #     )
+        # )
+        # self.user_burst_list.append(
+        #     BurstDef(
+        #         cent_freq=-0.3,
+        #         bandwidth=0.1,
+        #         start=5000,
+        #         duration=8000,
+        #         sig_type={"label": "QPSK", "format": "psk", "order": 2},
+        #     )
+        # )
+        # self.user_burst_list.append(
+        #     BurstDef(
+        #         cent_freq=0.0,
+        #         bandwidth=0.35,
+        #         start=10000,
+        #         duration=80000,
+        #         sig_type={"label": "64QAM", "format": "qam", "order": 64},
+        #     )
+        # )
+        # self.user_burst_list.append(
+        #     BurstDef(
+        #         cent_freq=0.0,
+        #         bandwidth=0.35,
+        #         start=10000,
+        #         duration=80000,
+        #         sig_type={"label": "64QAM", "format": "qam", "order": 64},
+        #     )
+        # )
+
         for entity in self.entity_list:
 
             if "order" not in entity.modem_params.keys():
