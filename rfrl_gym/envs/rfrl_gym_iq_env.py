@@ -50,6 +50,7 @@ class RFRLGymIQEnv(gym.Env):
                 if not param == 'type':
                     obj_str += (param + '=' + str(self.scenario_metadata['entities'][entity][param]) + ', ')
             obj_str += ')'
+
             self.entity_list.append(eval(obj_str))      
             self.entity_list[-1].set_entity_index(entity_idx)
             if entity == self.target_entity:
@@ -73,21 +74,27 @@ class RFRLGymIQEnv(gym.Env):
         self.observation_space = gym.spaces.Discrete(self.observation_base**self.num_channels)
 
         ##################################################################
-        self.pywaspgen_burst_gen = BurstDatagen("pywaspgen/configs/default.json")
         self.pywaspgen_iq_gen = IQDatagen("pywaspgen/configs/default.json")
         self.user_burst_list = []
 
-        for entity in self.scenario_metadata['entities']:
-            self.user_burst_list.append
-            (
+        for entity in self.entity_list:
+
+            if "order" not in entity.modem_params.keys():
+                entity.modem_params["order"] = None
+
+            self.user_burst_list.append(
                 BurstDef(
-                    cent_freq=0,
-                    bandwidth=0.35,
-                    start=10000,
-                    duration=80000,
-                    sig_type={"label": "64QAM", "format": "qam", "order": 64},
+                    cent_freq = entity.modem_params["center_frequency"],
+                    bandwidth = entity.modem_params["bandwidth"],
+                    start = entity.modem_params["start"],
+                    duration = entity.modem_params["duration"],
+                    sig_type={"label": entity.modem_params["type"], "format": entity.modem_params["type"], "order": entity.modem_params["order"]},
                 )
             )
+
+        #print("Burst list: " + str(self.user_burst_list))
+
+        print("INIT")
         ##################################################################
 
     def step(self, action):
@@ -102,6 +109,7 @@ class RFRLGymIQEnv(gym.Env):
         #self.info['spectrum_data'] = self.iq_gen.gen_iq(self.info['action_history'][:,self.info['step_number']])
 
         ##################################################################
+        print("STEP")
         self.info['spectrum_data'], self.updated_burst_list = self.pywaspgen_iq_gen.gen_iqdata(self.user_burst_list)
 
         # for entity, create the burst for each
@@ -176,6 +184,7 @@ class RFRLGymIQEnv(gym.Env):
         #self.info['spectrum_data'] = self.iq_gen.gen_iq(self.info['action_history'][:,self.info['step_number']])
 
         ##################################################################
+        print("RESET")
         self.info['spectrum_data'], self.updated_burst_list = self.pywaspgen_iq_gen.gen_iqdata(self.user_burst_list)
         ##################################################################
 
@@ -242,4 +251,4 @@ class RFRLGymIQEnv(gym.Env):
         elif self.observation_mode == 'classify':
             player_observation = true_observation
 
-        return true_observation, player_observation
+        return true_observation, player_observation#
