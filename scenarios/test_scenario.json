@@ -26,9 +26,9 @@
                 "type": "qam",
                 "order": 16,
                 "filter": "RRC",
-                "center_frequency": [-0.1,0.1],
+                "center_frequency": -0.1,
                 "bandwidth": 0.25,
-                "start": 0.25,
+                "start": 0,
                 "duration": 0.25
             }
         },
@@ -42,9 +42,9 @@
                 "type": "psk",
                 "order": 4,
                 "filter": "RRC",
-                "center_frequency": [-0.1,0.1],
+                "center_frequency": -0.1,
                 "bandwidth": 0.5,
-                "start": 0.5,
+                "start": 1,
                 "duration": 0.25
             }
         },
@@ -59,10 +59,10 @@
                 "type": "ask",
                 "order": 4,
                 "filter": "RRC",
-                "center_frequency": [0.0,0.0],
+                "center_frequency": 0.0,
                 "bandwidth": 0.5,
-                "start": 0.0,
-                "duration": 1.0
+                "start": 0,
+                "duration": 0.25
             }
         },
         "fixed_hop_freq_2":
@@ -76,10 +76,10 @@
                 "type": "ask",
                 "order": 4,
                 "filter": "RRC",
-                "center_frequency": [0.0,0.0],
+                "center_frequency": 0.0,
                 "bandwidth": 0.5,
-                "start": 0.0,
-                "duration": 1.0
+                "start": 0,
+                "duration": 0.25
             }
         }        
     },

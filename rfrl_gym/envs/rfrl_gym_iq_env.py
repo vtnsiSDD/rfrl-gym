@@ -122,14 +122,12 @@ class RFRLGymIQEnv(gym.Env):
             self.user_burst_list.append(
                 BurstDef(
                     cent_freq = entity.modem_params["center_frequency"],
-                    bandwidth = entity.modem_params["bandwidth"],
-                    start = entity.modem_params["start"],
-                    duration = entity.modem_params["duration"],
+                    bandwidth = (entity.modem_params["bandwidth"] / self.num_channels),
+                    start = int(entity.modem_params["start"] * self.samples_per_step),
+                    duration = int(entity.modem_params["duration"] * self.samples_per_step),
                     sig_type={"label": entity.modem_params["type"], "format": entity.modem_params["type"], "order": entity.modem_params["order"]},
                 )
             )
-
-        #print("Burst list: " + str(self.user_burst_list))
 
         print("INIT")
         ##################################################################
@@ -146,8 +144,9 @@ class RFRLGymIQEnv(gym.Env):
         #self.info['spectrum_data'] = self.iq_gen.gen_iq(self.info['action_history'][:,self.info['step_number']])
 
         ##################################################################
-        print("STEP")
-        self.info['spectrum_data'], self.updated_burst_list = self.pywaspgen_iq_gen.gen_iqdata(self.user_burst_list)
+        data, self.user_burst_list = self.pywaspgen_iq_gen.gen_iqdata(self.user_burst_list)
+        self.info['spectrum_data'] += data
+        self.info['spectrum_data'] = np.roll(self.info['spectrum_data'], self.samples_per_step, axis=0)
 
         # for entity, create the burst for each
         # then call iqgen with all of the bursts
@@ -222,7 +221,7 @@ class RFRLGymIQEnv(gym.Env):
 
         ##################################################################
         print("RESET")
-        self.info['spectrum_data'], self.updated_burst_list = self.pywaspgen_iq_gen.gen_iqdata(self.user_burst_list)
+        self.info['spectrum_data'], self.user_burst_list = self.pywaspgen_iq_gen.gen_iqdata(self.user_burst_list)
         ##################################################################
 
         # Reset the render and set return variables.
