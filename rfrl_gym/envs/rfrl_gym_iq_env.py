@@ -114,9 +114,6 @@ class RFRLGymIQEnv(gym.Env):
         #     )
         # )
 
-        #self.fc = np.linspace(-0.5, 0.5, self.num_channels+1)+1/self.num_channels/2
-        #self.fc[k]+cent_freq/self.num_channels
-
         for entity in self.entity_list:
 
             if "order" not in entity.modem_params.keys():
