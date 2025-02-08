@@ -114,6 +114,9 @@ class RFRLGymIQEnv(gym.Env):
         #     )
         # )
 
+        #self.fc = np.linspace(-0.5, 0.5, self.num_channels+1)+1/self.num_channels/2
+        #self.fc[k]+cent_freq/self.num_channels
+
         for entity in self.entity_list:
 
             if "order" not in entity.modem_params.keys():
@@ -128,8 +131,6 @@ class RFRLGymIQEnv(gym.Env):
                     sig_type={"label": entity.modem_params["type"], "format": entity.modem_params["type"], "order": entity.modem_params["order"]},
                 )
             )
-
-        print("INIT")
         ##################################################################
 
     def step(self, action):
@@ -142,9 +143,8 @@ class RFRLGymIQEnv(gym.Env):
         self.info['true_history'][self.info['step_number']], self.info['observation_history'][self.info['step_number']] = self.__get_entity_actions_and_observation()
         
         #self.info['spectrum_data'] = self.iq_gen.gen_iq(self.info['action_history'][:,self.info['step_number']])
-
         ##################################################################
-        data, self.user_burst_list = self.pywaspgen_iq_gen.gen_iqdata(self.user_burst_list)
+        data, self.updated_burst_list = self.pywaspgen_iq_gen.gen_iqdata(self.user_burst_list)
         self.info['spectrum_data'] += data
         self.info['spectrum_data'] = np.roll(self.info['spectrum_data'], self.samples_per_step, axis=0)
 
@@ -154,7 +154,6 @@ class RFRLGymIQEnv(gym.Env):
         # for entity in list
         #     iqgen = call to file (burst_list[entity])
         #     samples_entity += slice
-
         ##################################################################
 
         # Calculate the player reward.
@@ -220,8 +219,7 @@ class RFRLGymIQEnv(gym.Env):
         #self.info['spectrum_data'] = self.iq_gen.gen_iq(self.info['action_history'][:,self.info['step_number']])
 
         ##################################################################
-        print("RESET")
-        self.info['spectrum_data'], self.user_burst_list = self.pywaspgen_iq_gen.gen_iqdata(self.user_burst_list)
+        self.info['spectrum_data'], self.updated_burst_list = self.pywaspgen_iq_gen.gen_iqdata(self.user_burst_list)
         ##################################################################
 
         # Reset the render and set return variables.
