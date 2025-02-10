@@ -113,19 +113,30 @@ class RFRLGymIQEnv(gym.Env):
         #         sig_type={"label": "64QAM", "format": "qam", "order": 64},
         #     )
         # )
+        self.rng=np.random.default_rng()
 
         for entity in self.entity_list:
-
             if "order" not in entity.modem_params.keys():
                 entity.modem_params["order"] = None
 
+            low, high = entity.modem_params['center_frequency']
+            if low == high:
+                center_frequency = low
+            elif low < high:
+                center_frequency = self.rng.uniform(low, high)
+            else:
+                raise ValueError(f"Invalid center_frequency range: {low} > {high}")
+
             self.user_burst_list.append(
                 BurstDef(
-                    cent_freq = entity.modem_params["center_frequency"],
+                    cent_freq = center_frequency,
                     bandwidth = (entity.modem_params["bandwidth"] / self.num_channels),
                     start = int(entity.modem_params["start"] * self.samples_per_step),
                     duration = int(entity.modem_params["duration"] * self.samples_per_step),
-                    sig_type={"label": entity.modem_params["type"], "format": entity.modem_params["type"], "order": entity.modem_params["order"]},
+                    sig_type={
+                        "label": entity.modem_params["label"], 
+                        "format": entity.modem_params["type"], 
+                        "order": entity.modem_params["order"]},
                 )
             )
         ##################################################################
