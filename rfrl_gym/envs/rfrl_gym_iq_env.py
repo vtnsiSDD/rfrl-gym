@@ -76,47 +76,11 @@ class RFRLGymIQEnv(gym.Env):
         ##################################################################
         self.pywaspgen_iq_gen = IQDatagen("pywaspgen/configs/default.json")
         self.user_burst_list = []
-
-        # self.user_burst_list.append(
-        #     BurstDef(
-        #         cent_freq=0.3,
-        #         bandwidth=0.2,
-        #         start=1000,
-        #         duration=50000,
-        #         sig_type={"label": "BASK", "format": "ask", "order": 2},
-        #     )
-        # )
-        # self.user_burst_list.append(
-        #     BurstDef(
-        #         cent_freq=-0.3,
-        #         bandwidth=0.1,
-        #         start=5000,
-        #         duration=8000,
-        #         sig_type={"label": "QPSK", "format": "psk", "order": 2},
-        #     )
-        # )
-        # self.user_burst_list.append(
-        #     BurstDef(
-        #         cent_freq=0.0,
-        #         bandwidth=0.35,
-        #         start=10000,
-        #         duration=80000,
-        #         sig_type={"label": "64QAM", "format": "qam", "order": 64},
-        #     )
-        # )
-        # self.user_burst_list.append(
-        #     BurstDef(
-        #         cent_freq=0.0,
-        #         bandwidth=0.35,
-        #         start=10000,
-        #         duration=80000,
-        #         sig_type={"label": "64QAM", "format": "qam", "order": 64},
-        #     )
-        # )
         self.rng=np.random.default_rng()
 
         print("FC: " + str(self.fc))
         print("Num channels: ", self.num_channels)
+        print()
 
         self.current_channel = 0
 
@@ -132,19 +96,28 @@ class RFRLGymIQEnv(gym.Env):
                 center_frequency = self.rng.uniform(low, high)
             else:
                 raise ValueError(f"Invalid center_frequency range: {low} > {high}")
+            
+            channel_index = self.current_channel % len(entity.channels)
+            new_cent_frequency = self.fc[entity.channels[channel_index]] + (center_frequency/self.num_channels)
+
+            print("Channel: ", str(entity.channels[channel_index]) + " - Center Frequency: ", str(round(new_cent_frequency, 2)))
 
             self.user_burst_list.append(
                 BurstDef(
-                    cent_freq = center_frequency,
+                    cent_freq = new_cent_frequency,
                     bandwidth = (entity.modem_params["bandwidth"] / self.num_channels),
                     start = int(entity.modem_params["start"] * self.samples_per_step),
                     duration = int(entity.modem_params["duration"] * self.samples_per_step),
                     sig_type={
-                        "label": entity.modem_params["label"], 
+                        "label": str(str(entity.modem_params["order"]) + str(entity.modem_params["type"])), 
                         "format": entity.modem_params["type"], 
                         "order": entity.modem_params["order"]},
                 )
             )
+
+        print()
+
+        self.current_channel += 1
         ##################################################################
 
     def step(self, action):
@@ -162,30 +135,26 @@ class RFRLGymIQEnv(gym.Env):
         print("Current Channel: " , str(self.current_channel))
 
         for num_entity in range(self.num_entities):
-            entity = self.entity_list[num_entity-1]
-            entity_current_channel = 0
+            entity = self.entity_list[num_entity]
 
-            cent_freq = self.rng.uniform(entity.modem_params['center_frequency'][0],entity.modem_params['center_frequency'][1])
-            channels = entity.channels
+            center_frequency = self.rng.uniform(entity.modem_params['center_frequency'][0],entity.modem_params['center_frequency'][1])
+            channel_index = self.current_channel % len(entity.channels)
+            new_cent_frequency = self.fc[entity.channels[channel_index]] + (center_frequency/self.num_channels)
 
-            if len(channels) > 1:
-                channel_index = self.current_channel % len(channels)
-                print("Channel Index: ", str(channel_index))
-                entity_current_channel = channels[channel_index]
-            else:
-                entity_current_channel = channels[0]
+            print("Channel: ", str(entity.channels[channel_index]) + " - Center Frequency: ", str(round(new_cent_frequency, 2)))
 
-            new_cent_frequency = self.fc[entity_current_channel] + (cent_freq/self.num_channels)
             self.user_burst_list[num_entity].cent_freq = new_cent_frequency
 
         print()
-        print()
 
-        data, self.updated_burst_list = self.pywaspgen_iq_gen.gen_iqdata(self.user_burst_list)
+        data, self.user_burst_list = self.pywaspgen_iq_gen.gen_iqdata(self.user_burst_list)
         self.info['spectrum_data'] += data
-        self.info['spectrum_data'] = np.roll(self.info['spectrum_data'], self.samples_per_step, axis=0)
-        self.current_channel += 1
 
+        print(data.shape)
+        print("Step: ", str(self.samples_per_step))
+        self.info['spectrum_data'] = np.roll(self.info['spectrum_data'], self.samples_per_step, axis=0)
+        
+        self.current_channel += 1
         if self.current_channel > self.num_channels -1:
             self.current_channel = 0
 
@@ -260,7 +229,7 @@ class RFRLGymIQEnv(gym.Env):
         #self.info['spectrum_data'] = self.iq_gen.gen_iq(self.info['action_history'][:,self.info['step_number']])
 
         ##################################################################
-        self.info['spectrum_data'], self.updated_burst_list = self.pywaspgen_iq_gen.gen_iqdata(self.user_burst_list)
+        self.info['spectrum_data'], self.user_burst_list = self.pywaspgen_iq_gen.gen_iqdata(self.user_burst_list)
         ##################################################################
 
         # Reset the render and set return variables.
