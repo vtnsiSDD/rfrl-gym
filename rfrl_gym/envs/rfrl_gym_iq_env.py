@@ -115,11 +115,17 @@ class RFRLGymIQEnv(gym.Env):
         # )
         self.rng=np.random.default_rng()
 
+        print("FC: " + str(self.fc))
+        print("Num channels: ", self.num_channels)
+
+        self.current_channel = 0
+
         for entity in self.entity_list:
             if "order" not in entity.modem_params.keys():
                 entity.modem_params["order"] = None
 
             low, high = entity.modem_params['center_frequency']
+
             if low == high:
                 center_frequency = low
             elif low < high:
@@ -152,9 +158,36 @@ class RFRLGymIQEnv(gym.Env):
         
         #self.info['spectrum_data'] = self.iq_gen.gen_iq(self.info['action_history'][:,self.info['step_number']])
         ##################################################################
+
+        print("Current Channel: " , str(self.current_channel))
+
+        for num_entity in range(self.num_entities):
+            entity = self.entity_list[num_entity-1]
+            entity_current_channel = 0
+
+            cent_freq = self.rng.uniform(entity.modem_params['center_frequency'][0],entity.modem_params['center_frequency'][1])
+            channels = entity.channels
+
+            if len(channels) > 1:
+                channel_index = self.current_channel % len(channels)
+                print("Channel Index: ", str(channel_index))
+                entity_current_channel = channels[channel_index]
+            else:
+                entity_current_channel = channels[0]
+
+            new_cent_frequency = self.fc[entity_current_channel] + (cent_freq/self.num_channels)
+            self.user_burst_list[num_entity].cent_freq = new_cent_frequency
+
+        print()
+        print()
+
         data, self.updated_burst_list = self.pywaspgen_iq_gen.gen_iqdata(self.user_burst_list)
         self.info['spectrum_data'] += data
         self.info['spectrum_data'] = np.roll(self.info['spectrum_data'], self.samples_per_step, axis=0)
+        self.current_channel += 1
+
+        if self.current_channel > self.num_channels -1:
+            self.current_channel = 0
 
         # for entity, create the burst for each
         # then call iqgen with all of the bursts
