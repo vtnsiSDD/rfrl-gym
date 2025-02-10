@@ -4,7 +4,7 @@ import argparse
 import rfrl_gym
 
 parser = argparse.ArgumentParser()
-parser.add_argument('-s', '--scenario', default='test_scenario.json', type=str, help='The scenario file to preview in the RFRL gym environment.')
+parser.add_argument('-s', '--scenario', default='test.json', type=str, help='The scenario file to preview in the RFRL gym environment.')
 parser.add_argument('-m', '--gym_mode', default='abstract', type=str, help='Which type of RFRL gym environment to run.')
 args = parser.parse_args()
 

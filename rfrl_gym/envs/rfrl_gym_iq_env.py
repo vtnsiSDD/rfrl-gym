@@ -105,7 +105,7 @@ class RFRLGymIQEnv(gym.Env):
             self.user_burst_list.append(
                 BurstDef(
                     cent_freq = new_cent_frequency,
-                    bandwidth = (entity.modem_params["bandwidth"] / self.num_channels),
+                    bandwidth = (entity.modem_params["bandwidth"] / (self.num_channels)),
                     start = int(entity.modem_params["start"] * self.samples_per_step),
                     duration = int(entity.modem_params["duration"] * self.samples_per_step),
                     sig_type={
@@ -148,22 +148,17 @@ class RFRLGymIQEnv(gym.Env):
         print()
 
         data, self.user_burst_list = self.pywaspgen_iq_gen.gen_iqdata(self.user_burst_list)
-        self.info['spectrum_data'] += data
+        self.info['spectrum_data'] = np.roll(self.info['spectrum_data'], self.samples_per_step, axis=0)
+        self.info['spectrum_data'][0:self.samples_per_step] += data
 
         print(data.shape)
         print("Step: ", str(self.samples_per_step))
-        self.info['spectrum_data'] = np.roll(self.info['spectrum_data'], self.samples_per_step, axis=0)
+        print(self.info['spectrum_data'].shape)
         
         self.current_channel += 1
         if self.current_channel > self.num_channels -1:
             self.current_channel = 0
 
-        # for entity, create the burst for each
-        # then call iqgen with all of the bursts
-        # seperate 
-        # for entity in list
-        #     iqgen = call to file (burst_list[entity])
-        #     samples_entity += slice
         ##################################################################
 
         # Calculate the player reward.
@@ -229,7 +224,9 @@ class RFRLGymIQEnv(gym.Env):
         #self.info['spectrum_data'] = self.iq_gen.gen_iq(self.info['action_history'][:,self.info['step_number']])
 
         ##################################################################
-        self.info['spectrum_data'], self.user_burst_list = self.pywaspgen_iq_gen.gen_iqdata(self.user_burst_list)
+        self.info['spectrum_data'] = noise_samps = np.random.normal(0.0, np.sqrt(0.5), self.samples_per_step * self.scenario_metadata['render']['render_history']) + 1.0j * (np.random.normal(0.0, np.sqrt(0.5), self.samples_per_step * self.scenario_metadata['render']['render_history']))
+        data, self.user_burst_list = self.pywaspgen_iq_gen.gen_iqdata(self.user_burst_list)
+        self.info['spectrum_data'][0:self.samples_per_step] += data
         ##################################################################
 
         # Reset the render and set return variables.
