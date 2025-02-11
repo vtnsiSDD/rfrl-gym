@@ -37,11 +37,15 @@ _Note: Pardon our mess as this project is under active development. Please let u
 
 `pip3 install pip wheel setuptools --upgrade`
 
-7. Install Pywaspgen
+7. Update Submodules
+
+`git submodule update --init --recursive`
+
+8. Install Pywaspgen
 
 `cd pywaspgen && pip install . && cd ..`
 
-8. Install the repository:
+9. Install the repository:
 
 `pip3 install --editable .`
 
