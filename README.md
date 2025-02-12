@@ -17,23 +17,35 @@ _Note: Pardon our mess as this project is under active development. Please let u
 
 `sudo apt install python3 python3-pip python3-venv python3-wheel`
 
-2. Set up a Python virtual environment in the root directory of the repository:
+2. Download Pywaspgen and install it as a submodule for data generation
+
+`git submodule add https://github.com/vtnsi/pywaspgen.git`
+
+3. Set up a Python virtual environment in the root directory of the repository:
 
 `python3 -m venv rfrl-gym-venv`
 
-3. Ensure that venv is fully updated:
+4. Ensure that venv is fully updated:
 
 `python3 -m venv --upgrade rfrl-gym-venv`
 
-4. Activate the virtual environment (you will need to do this everytime you being working with the repository in a new terminal):
+5. Activate the virtual environment (you will need to do this everytime you being working with the repository in a new terminal):
 
 `source rfrl-gym-venv/bin/activate`
 
-5. Install setuptools:
+6. Install setuptools:
 
 `pip3 install pip wheel setuptools --upgrade`
 
-6. Install the repository:
+7. Update Submodules
+
+`git submodule update --init --recursive`
+
+8. Install Pywaspgen
+
+`cd pywaspgen && pip install . && cd ..`
+
+9. Install the repository:
 
 `pip3 install --editable .`
 

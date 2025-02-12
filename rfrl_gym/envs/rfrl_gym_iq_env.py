@@ -6,8 +6,9 @@ from PyQt6.QtWidgets import QApplication
 import rfrl_gym.renderers
 import rfrl_gym.detectors
 import rfrl_gym.entities
-import rfrl_gym.datagen
 import scipy.signal as signal
+from pywaspgen.burst_def import BurstDef
+from pywaspgen.iq_datagen import IQDatagen
 
 class RFRLGymIQEnv(gym.Env):
     metadata = {'render_modes': ['null', 'terminal', 'pyqt'], 'render_fps':4,
@@ -47,6 +48,7 @@ class RFRLGymIQEnv(gym.Env):
                 if not param == 'type':
                     obj_str += (param + '=' + str(self.scenario_metadata['entities'][entity][param]) + ', ')
             obj_str += ')'
+
             self.entity_list.append(eval(obj_str))      
             self.entity_list[-1].set_entity_index(entity_idx)
             if entity == self.target_entity:
@@ -69,6 +71,46 @@ class RFRLGymIQEnv(gym.Env):
             self.observation_base = 1+self.num_entities
         self.observation_space = gym.spaces.Discrete(self.observation_base**self.num_channels)
 
+        #Pywaspgen data generation
+        self.pywaspgen_iq_gen = IQDatagen("pywaspgen/configs/default.json")
+        self.user_burst_list = []
+        self.rng=np.random.default_rng()
+
+        self.current_channel = 0
+
+        #load the entity information from the json file and create the Pywasgen bursts
+        for entity in self.entity_list:
+            if "order" not in entity.modem_params.keys():
+                entity.modem_params["order"] = None
+
+            low, high = entity.modem_params['center_frequency']
+
+            if low == high:
+                center_frequency = low
+            elif low < high:
+                center_frequency = self.rng.uniform(low, high)
+            else:
+                raise ValueError(f"Invalid center_frequency range: {low} > {high}")
+            
+            channel_index = self.current_channel % len(entity.channels)
+            new_cent_frequency = self.fc[entity.channels[channel_index]] + (center_frequency/self.num_channels)
+
+            print("Channel: ", str(entity.channels[channel_index]) + " - Center Frequency: ", str(round(new_cent_frequency, 2)))
+
+            self.user_burst_list.append(
+                BurstDef(
+                    cent_freq = new_cent_frequency,
+                    bandwidth = (entity.modem_params["bandwidth"] / (self.num_channels)),
+                    start = int(entity.modem_params["start"] * self.samples_per_step),
+                    duration = int(entity.modem_params["duration"] * self.samples_per_step),
+                    sig_type={
+                        "label": str(str(entity.modem_params["order"]) + str(entity.modem_params["type"])), 
+                        "format": entity.modem_params["type"], 
+                        "order": entity.modem_params["order"]},
+                )
+            )
+        self.current_channel += 1
+
     def step(self, action):
         action -= 1
         self.info['step_number'] += 1
@@ -77,7 +119,23 @@ class RFRLGymIQEnv(gym.Env):
 
         # Get entity actions and determine player observation.
         self.info['true_history'][self.info['step_number']], self.info['observation_history'][self.info['step_number']] = self.__get_entity_actions_and_observation()
-        self.info['spectrum_data'] = self.iq_gen.gen_iq(self.info['action_history'][:,self.info['step_number']])
+
+        #Update the Pywaspgen bursts with every step given the new center frequency
+        for num_entity in range(self.num_entities):
+            entity = self.entity_list[num_entity]
+
+            center_frequency = self.rng.uniform(entity.modem_params['center_frequency'][0],entity.modem_params['center_frequency'][1])
+            channel_index = self.current_channel % len(entity.channels)
+            new_cent_frequency = self.fc[entity.channels[channel_index]] + (center_frequency/self.num_channels)
+            self.user_burst_list[num_entity].cent_freq = new_cent_frequency
+
+        data, self.user_burst_list = self.pywaspgen_iq_gen.gen_iqdata(self.user_burst_list)
+        self.info['spectrum_data'] = np.roll(self.info['spectrum_data'], self.samples_per_step, axis=0)
+        self.info['spectrum_data'][0:self.samples_per_step] += data
+        
+        self.current_channel += 1
+        if self.current_channel > self.num_channels -1:
+            self.current_channel = 0
 
         # Calculate the player reward.
         if action == -1:
@@ -85,11 +143,8 @@ class RFRLGymIQEnv(gym.Env):
         else:
             if self.reward_mode == 'dsa':
                 self.info['reward_history'][self.info['step_number']] = 2.0*int(self.info['true_history'][self.info['step_number']][action]==0)-1.0
-                #self.info['reward_history'][self.info['step_number']] = 2.0*int(self.sensing_image[action]==0)-1.0
             elif self.reward_mode == 'jam':
                 self.info['reward_history'][self.info['step_number']] = 2.0*int(self.info['true_history'][self.info['step_number']][action]==self.target_idx)-1.0
-                #self.info['reward_history'][self.info['step_number']] = 2.0*int(self.info['sensing_history'][self.info['step_number']][action]==self.target_idx)-1.0
-                #self.info['reward_history'][self.info['step_number']] = 2.0*int(self.sensing_image[action]==1)-1.0
         self.info['cumulative_reward'][self.info['step_number']] = np.sum(self.info['reward_history'])
               
         # Update return variables and run the render.
@@ -136,10 +191,11 @@ class RFRLGymIQEnv(gym.Env):
         for entity in self.entity_list:
             entity.reset(self.info)            
         self.info['true_history'][0], self.info['observation_history'][0] = self.__get_entity_actions_and_observation()
-        
-        self.iq_gen = rfrl_gym.datagen.iq_gen.IQ_Gen(self.num_channels, self.num_entities, self.scenario_metadata['render']['render_history'], self.entity_list)
-        self.iq_gen.reset()
-        self.info['spectrum_data'] = self.iq_gen.gen_iq(self.info['action_history'][:,self.info['step_number']])
+
+        #Instantiate the spectrum of samples and then use Pywaspgen to generate the initial bursts
+        self.info['spectrum_data'] = noise_samps = np.random.normal(0.0, np.sqrt(0.5), self.samples_per_step * self.scenario_metadata['render']['render_history']) + 1.0j * (np.random.normal(0.0, np.sqrt(0.5), self.samples_per_step * self.scenario_metadata['render']['render_history']))
+        data, self.user_burst_list = self.pywaspgen_iq_gen.gen_iqdata(self.user_burst_list)
+        self.info['spectrum_data'][0:self.samples_per_step] += data
 
         # Reset the render and set return variables.
         observation = self.__observation_space_encoder(self.info['observation_history'][0])
@@ -204,4 +260,4 @@ class RFRLGymIQEnv(gym.Env):
         elif self.observation_mode == 'classify':
             player_observation = true_observation
 
-        return true_observation, player_observation
+        return true_observation, player_observation#

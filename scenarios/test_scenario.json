@@ -26,7 +26,7 @@
                 "type": "qam",
                 "order": 16,
                 "filter": "RRC",
-                "center_frequency": [-0.1,0.1],
+                "center_frequency": [-0.35, -0.35],
                 "bandwidth": 0.25,
                 "start": 0.25,
                 "duration": 0.25
@@ -42,7 +42,7 @@
                 "type": "psk",
                 "order": 4,
                 "filter": "RRC",
-                "center_frequency": [-0.1,0.1],
+                "center_frequency": [-0.15, -0.15],
                 "bandwidth": 0.5,
                 "start": 0.5,
                 "duration": 0.25
@@ -51,16 +51,18 @@
         "fixed_hop_freq_1":
         {
             "type": "FixedHopFreq",
-            "channels": [1,2,3,4,5,6,7,8],
+            "channels": [4, 2, 5, 7, 3, 6, 8, 1],
             "onoff": [1,1,0],
             "rand_hop": 0,
             "modem_params":
             {
-                "type": "n_fmcw",
-                "center_frequency": [0.0,0.0],
-                "bandwidth": 1.0,
+                "type": "ask",
+                "order": 4,
+                "filter": "RRC",
+                "center_frequency": [-0.1, -0.1],
+                "bandwidth": 0.5,
                 "start": 0.0,
-                "duration": 1.0
+                "duration": 0.25
             }
         },
         "fixed_hop_freq_2":
@@ -74,10 +76,10 @@
                 "type": "ask",
                 "order": 4,
                 "filter": "RRC",
-                "center_frequency": [0.0,0.0],
+                "center_frequency": [0.1, 0.1],
                 "bandwidth": 0.5,
-                "start": 0.0,
-                "duration": 1.0
+                "start": 0,
+                "duration": 0.25
             }
         }        
     },
